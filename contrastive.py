@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 
 class ContrastiveExtractor():
 
-    def __init__(self, base_path, batch_size=10000, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
+    def __init__(self, base_path, batch_size=5000, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
 
 
         self.batch_size = batch_size
@@ -57,7 +57,7 @@ class ContrastiveExtractor():
         model = torchvision.models.__dict__['resnet18'](pretrained=False)
 
         try:
-            state = torch.load(self.model_path, map_location={'cuda:1':'cuda:0'})
+            state = torch.load(self.model_path, map_location='cuda:0')
             # img_path = "/home/simon/philipp/patches/DigitalSlide_A1M_9S_1_20190127165819218"
         except:
             state = torch.load(self.model_path_, map_location='cuda:0')
@@ -107,7 +107,7 @@ class ContrastiveExtractor():
             # Convert the image to PyTorch tensor 
             # tensor = transform(images)
 
-            device = torch.device("cuda:0,1" if torch.cuda.is_available() else "cpu")
+            device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
             # print("Device:", device)
             tensor = torch.from_numpy(imgs).float().to(device)
 
@@ -161,7 +161,6 @@ class ContrastiveExtractor():
 
         all_feat_frame = pd.DataFrame([])
         chunked_list = list(more_itertools.chunked(all_coords, self.batch_size))
-
         for coord_subset in tqdm(chunked_list):
             patch_array = self.create_patch_dict(coord_subset)
             frame = self.extract_features(patch_array)
