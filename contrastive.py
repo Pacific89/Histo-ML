@@ -159,16 +159,10 @@ class ContrastiveExtractor():
         all_feat_frame = pd.DataFrame([])
         chunked_list = list(more_itertools.chunked(all_coords, self.batch_size))
 
-        loader = DataLoader(dataset=self.dataset, batch_size=self.batch_size)
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        for count, (batch, coords) in tqdm(enumerate(chunked_list)):
 
-        for count, (batch, coords) in tqdm(enumerate(loader)):
-            batch = batch.to(device, non_blocking=True)
-            features = self.model(batch)
-            # patch_array = self.create_patch_dict(coord_subset)
-            # frame = self.extract_features(patch_array)
-            features = pd.DataFrame(features.cpu().numpy())
-            all_feat_frame = pd.concat([all_feat_frame, frame])
+            patch_array = self.create_patch_dict(coord_subset)
+            frame = self.extract_features(patch_array)
 
         all_feat_frame.to_csv(os.path.join("features_frame.csv"))
 
