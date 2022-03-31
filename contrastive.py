@@ -88,7 +88,7 @@ class ContrastiveExtractor():
 
     def load_imgs(self, img_paths):
         try:
-            return = np.array([np.reshape(np.array(Image.open(img).convert('RGB').resize((224,224))), (3,224,224)) for img in img_paths])
+            return np.array([np.reshape(np.array(Image.open(img).convert('RGB').resize((224,224))), (3,224,224)) for img in img_paths])
 
         except PIL.UnidentifiedImageError as e:
 
