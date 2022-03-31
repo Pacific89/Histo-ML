@@ -57,7 +57,7 @@ class ContrastiveExtractor():
         model = torchvision.models.__dict__['resnet18'](pretrained=False)
 
         try:
-            state = torch.load(self.model_path, map_location='cuda:0')
+            state = torch.load(self.model_path, map_location={'cuda:1':'cuda:0'})
             # img_path = "/home/simon/philipp/patches/DigitalSlide_A1M_9S_1_20190127165819218"
         except:
             state = torch.load(self.model_path_, map_location='cuda:0')
@@ -107,7 +107,7 @@ class ContrastiveExtractor():
             # Convert the image to PyTorch tensor 
             # tensor = transform(images)
 
-            device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+            device = torch.device("{'cuda:1':'cuda:0'}" if torch.cuda.is_available() else "cpu")
             # print("Device:", device)
             tensor = torch.from_numpy(imgs).float().to(device)
 
@@ -160,7 +160,7 @@ class ContrastiveExtractor():
             all_coords = np.array(f["coords"])
 
         all_feat_frame = pd.DataFrame([])
-        chunked_list = more_itertools.chunked(all_coords, self.batch_size)
+        chunked_list = list(more_itertools.chunked(all_coords, self.batch_size))
         print(chunked_list)
         for coord_subset in tqdm(chunked_list):
             patch_array = self.create_patch_dict(coord_subset)
