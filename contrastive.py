@@ -33,7 +33,7 @@ class ContrastiveExtractor():
             self.wsi_paths = self.get_wsi_paths()
             print(self.wsi_paths)
 
-        self.model_path = model_path
+        self.model_path_ = model_path
         # self.model_path_ = '/home/user/Documents/Master/contrastive_learning/tenpercent_resnet18.ckpt'
         self.return_preactivation = return_preactivation  # return features from the model, if false return classification logits
         # self.num_classes = 10  # only used if self.return_preactivation = False
