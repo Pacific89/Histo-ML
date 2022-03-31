@@ -169,7 +169,7 @@ class ContrastiveExtractor():
     def get_patch(self, coords, wsi_path, patch_size=256):
 
         patch = self.wsi.read_region(tuple(coords), level=0, size=(patch_size, patch_size)).convert('RGB')
-        patch = np.asarray(patch.resize((224,224)))
+        patch = np.asarray(patch.resize((224,224))).transpose
 
         # plt.figure()
         # plt.imshow(patch)
