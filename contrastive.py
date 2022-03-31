@@ -177,7 +177,7 @@ class ContrastiveExtractor():
         wsi = openslide.OpenSlide(wsi_path)
 
         patch = wsi.read_region(tuple(coords), level=0, size=(patch_size, patch_size)).convert('RGB')
-        patch = patch.resize((224,224))
+        patch = np.reshape(patch.resize((224,224)), (3,224,224))
 
 
         # plt.figure()
