@@ -15,6 +15,7 @@ import h5py
 import warnings
 from matplotlib import pyplot as plt
 from wsi_loader import Whole_Slide_Bag_FP
+from torch.utils.data import Dataset, DataLoader, sampler
 
 class ContrastiveExtractor():
 
