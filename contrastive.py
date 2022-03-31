@@ -1,8 +1,8 @@
-# import torchvision
-# import torch
+import torchvision
+import torch
 import PIL
 from PIL import Image 
-# import torchvision.transforms as transforms
+import torchvision.transforms as transforms
 import os
 import numpy as np
 import pandas as pd
