@@ -14,7 +14,7 @@ import openslide
 import h5py
 import warnings
 from matplotlib import pyplot as plt
-from wsi_loader import Whole_Slide_Bag
+from wsi_loader import Whole_Slide_Bag_FP
 from torch.utils.data import Dataset, DataLoader, sampler
 
 class ContrastiveExtractor():
@@ -31,7 +31,7 @@ class ContrastiveExtractor():
             self.h5path = base_path
             self.get_wsi_path()
             self.wsi = openslide.OpenSlide(self.wsi_path)
-            self.dataset = Whole_Slide_Bag(file_path=h5path, wsi=self.wsi, pretrained=False, target_patch_size=224)
+            self.dataset = Whole_Slide_Bag_FP(file_path=h5path, wsi=self.wsi, pretrained=False, target_patch_size=224)
         else:   
             self.wsi_paths = self.get_wsi_paths()
             print(self.wsi_paths)
