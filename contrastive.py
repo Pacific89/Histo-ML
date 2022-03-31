@@ -55,7 +55,7 @@ class ContrastiveExtractor():
         
     def load_model(self):
         model = torchvision.models.__dict__['resnet18'](pretrained=False)
-
+        torch.cuda.empty_cache()
         try:
             state = torch.load(self.model_path, map_location='cuda:0')
             # img_path = "/home/simon/philipp/patches/DigitalSlide_A1M_9S_1_20190127165819218"
