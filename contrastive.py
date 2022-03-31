@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 
 class ContrastiveExtractor():
 
-    def __init__(self, base_path, batch_size=5000, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
+    def __init__(self, base_path, batch_size=2500, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
 
 
         self.batch_size = batch_size
