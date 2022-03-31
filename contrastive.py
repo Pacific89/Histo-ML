@@ -1,8 +1,8 @@
-import torchvision
-import torch
+# import torchvision
+# import torch
 import PIL
 from PIL import Image 
-import torchvision.transforms as transforms
+# import torchvision.transforms as transforms
 import os
 import numpy as np
 import pandas as pd
@@ -10,30 +10,48 @@ import more_itertools
 import gc
 from tqdm import tqdm
 import argparse
-
+import openslide
+import h5py
+import warnings
+from matplotlib import pyplot as plt
 
 class ContrastiveExtractor():
 
-    def __init__(self, base_path, batch_size=1000):
+    def __init__(self, base_path, batch_size=1000, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
 
 
         self.batch_size = batch_size
         self.base_path = base_path
 
-        self.wsi_paths = self.get_wsi_paths()
-        self.model_path = "/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt"
+        print(self.base_path)
+
+        if os.path.isfile(base_path):
+            self.h5path = base_path
+            self.get_wsi_path()
+        else:   
+            self.wsi_paths = self.get_wsi_paths()
+            print(self.wsi_paths)
+
+        self.model_path = model_path
         # self.model_path_ = '/home/user/Documents/Master/contrastive_learning/tenpercent_resnet18.ckpt'
-        self.return_preactivation = True  # return features from the model, if false return classification logits
+        self.return_preactivation = return_preactivation  # return features from the model, if false return classification logits
         # self.num_classes = 10  # only used if self.return_preactivation = False
 
-        self.model = self.load_model()
+        # self.model = self.load_model()
 
-        print(self.base_path)
-        print(self.wsi_paths)
         print("Initialized")
 
 
+    def get_wsi_path(self):
 
+        parent_folder = self.h5path.split("/results")[0]
+        self.wsi_name = parent_folder.split("/")[-1]
+        self.wsi_path = os.path.join(os.path.join(parent_folder, "data"), self.wsi_name + ".svs")
+
+        print("Using WSI File: ", self.wsi_name)
+        print("With Abs Path: ", self.wsi_path)
+
+        
     def load_model(self):
         model = torchvision.models.__dict__['resnet18'](pretrained=False)
 
@@ -68,12 +86,20 @@ class ContrastiveExtractor():
 
         return model
 
+    def load_imgs(self, img_paths):
+        try:
+            return = np.array([np.reshape(np.array(Image.open(img).convert('RGB').resize((224,224))), (3,224,224)) for img in img_paths])
 
-    def load_extract(self, img_paths):
+        except PIL.UnidentifiedImageError as e:
+
+            print("PIL Error: ", e)
+            print("Skipping batch...")
+        
+            return np.array([])
+
+    def extract_features(self, imgs):
 
         # image = np.array(Image.open(os.path.join(path, img_paths[0])))
-        try:
-            images = np.array([np.reshape(np.array(Image.open(img).convert('RGB').resize((224,224))), (3,224,224)) for img in img_paths])
 
             # Define a transform to convert the image to tensor
             transform = transforms.ToTensor() 
@@ -93,13 +119,6 @@ class ContrastiveExtractor():
             del img_paths
 
             return frame
-
-        except PIL.UnidentifiedImageError as e:
-
-            print("PIL Error: ", e)
-            print("Skipping batch...")
-        
-            return pd.DataFrame([])
 
 
 
@@ -125,7 +144,11 @@ class ContrastiveExtractor():
         
         for subset in tqdm(more_itertools.chunked(self.img_paths, self.batch_size)):
             
-            frame = self.load_extract(subset)
+            imgs = self.load_imgs(subset)
+            if len(imgs) > 0:
+                frame = self.extract_features(imgs)
+            else:
+                frame = pd.DataFrame([])
 
             dataframe = pd.concat([dataframe, frame])
 
@@ -134,27 +157,84 @@ class ContrastiveExtractor():
 
         dataframe.to_csv(os.path.join(wsi_path, "features_frame.csv"))
 
+
+    def extract_features_from_h5file(self):
+
+        with h5py.File(self.h5path, "r") as f:
+            all_coords = np.array(f["coords"])
+
+        all_feat_frame = pd.DataFrame([])
+
+        for coord_subset in tqdm(more_itertools.chunked(all_coords, self.batch_size)):
+            patch_array = self.create_patch_dict(coord_subset)
+            frame = self.extract_features(patch_array)
+
+            all_feat_frame = pd.concat([all_feat_frame, frame])
+
+
+    def get_patch(self, coords, wsi_path, patch_size=256):
+
+        with warnings.catch_warnings(record=True) as w:
+            wsi = openslide.OpenSlide(wsi_path)
+            print("Warning: ", type(w[0]))
+
+            patch = wsi.read_region(tuple(coords), level=0, size=(patch_size, patch_size)).convert('RGB')
+            patch = patch.resize((3,224,224))
+
+
+        # plt.figure()
+        # plt.imshow(patch)
+
+        # plt.figure()
+        # plt.imshow(patch_)
+
+        # plt.show()
+
+        return patch
+
+    def create_patch_dict(self, coords):
+        patch_dict = {}
+        count = 0
+        # images = np.array([np.reshape(np.array(Image.open(img).convert('RGB').resize((224,224))), (3,224,224)) for img in img_paths])
+
+        patch_array = np.zeros((self.batch_size, 3, 224, 224))
+        for coord in coords:
+            patch = self.get_patch(coord, self.wsi_path)
+            patch_array[count] = patch
+            count += 1
+
+        print(patch_array)
+        return patch_array
+
+
 if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--path', type=str, required=False)
-    args = parser.parse_args()
-
-    base_path = args.path
-    ce = ContrastiveExtractor(base_path)
     # images = torch.rand((10, 3, 224, 224), device='cuda')
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-pp', '--parentpath', type=str, required=False, default='')
+    parser.add_argument('-hp', '--h5path', type=str, required=False, default='/media/user/easystore/HRD-Subset-I/DigitalSlide_A1M_1S_1_20190127153208246/results/7fdd6b3355754fe88db4ebfc72f2c0b8/raw/heat/Unspecified/DigitalSlide_A1M_1S_1_20190127153208246/DigitalSlide_A1M_1S_1_20190127153208246_blockmap.h5')
+    args = parser.parse_args()
 
-    for wsi_path in ce.wsi_paths:
-        print("File: ", wsi_path)
-        feat_file = os.path.join(wsi_path, "features_frame.csv")
-        
-        if os.path.isfile(feat_file):
-            print("Features found")
-            continue
-        else:
-            print("Calculating features...")
-            ce.extract_features_from_patchfiles(wsi_path)
+    base_path = args.parentpath
+    h5path = args.h5path
+
+    if len(base_path) > 0:
+        ce = ContrastiveExtractor(base_path)
+        for wsi_path in ce.wsi_paths:
+            print("File: ", wsi_path)
+            feat_file = os.path.join(wsi_path, "features_frame.csv")
+            
+            if os.path.isfile(feat_file):
+                print("Features found")
+                continue
+            else:
+                print("Calculating features...")
+                ce.extract_features_from_patchfiles(wsi_path)
+
+            
+    elif len(h5path) > 0:
+        ce = ContrastiveExtractor(h5path)
+        ce.extract_features_from_h5file()
 
 
 
