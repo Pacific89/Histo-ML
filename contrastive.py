@@ -109,7 +109,7 @@ class ContrastiveExtractor():
 
             device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
             # print("Device:", device)
-            tensor = torch.from_numpy(images).float().to(device)
+            tensor = torch.from_numpy(imgs).float().to(device)
 
             out = self.model(tensor)
             frame = pd.DataFrame(out.cpu().detach().numpy(), index=img_paths)
