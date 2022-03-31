@@ -28,7 +28,7 @@ class ContrastiveExtractor():
         if os.path.isfile(base_path):
             self.h5path = base_path
             self.get_wsi_path()
-            self.wsi = openslide.OpenSlide(wsi_path)
+            self.wsi = openslide.OpenSlide(self.wsi_path)
         else:   
             self.wsi_paths = self.get_wsi_paths()
             print(self.wsi_paths)
