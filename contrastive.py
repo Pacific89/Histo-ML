@@ -14,7 +14,7 @@ import openslide
 import h5py
 import warnings
 from matplotlib import pyplot as plt
-from wsi_loader import Whole_Slide_Bag_FP
+from wsi_loader import Whole_Slide_Bag
 from torch.utils.data import Dataset, DataLoader, sampler
 
 class ContrastiveExtractor():
@@ -31,7 +31,7 @@ class ContrastiveExtractor():
             self.h5path = base_path
             self.get_wsi_path()
             self.wsi = openslide.OpenSlide(self.wsi_path)
-            self.dataset = Whole_Slide_Bag_FP(file_path=h5path, wsi=self.wsi, pretrained=False, target_patch_size=224)
+            self.dataset = Whole_Slide_Bag(file_path=h5path, wsi=self.wsi, pretrained=False, target_patch_size=224)
         else:   
             self.wsi_paths = self.get_wsi_paths()
             print(self.wsi_paths)
@@ -93,13 +93,6 @@ class ContrastiveExtractor():
     def load_imgs(self, img_paths):
         try:
             return np.array([np.reshape(np.array(Image.open(img).convert('RGB').resize((224,224))), (3,224,224)) for img in img_paths])
-
-        except PIL.UnidentifiedImageError as e:
-
-            print("PIL Error: ", e)
-            print("Skipping batch...")
-        
-            return np.array([])
 
     def extract_features(self, imgs):
 
