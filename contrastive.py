@@ -160,6 +160,7 @@ class ContrastiveExtractor():
         chunked_list = list(more_itertools.chunked(all_coords, self.batch_size))
 
         loader = DataLoader(dataset=self.dataset, batch_size=self.batch_size)
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         for count, (batch, coords) in tqdm(enumerate(loader)):
             batch = batch.to(device, non_blocking=True)
