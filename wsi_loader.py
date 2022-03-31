@@ -84,5 +84,7 @@ class Whole_Slide_Bag_FP(Dataset):
 
 		if self.target_patch_size is not None:
 			img = img.resize(self.target_patch_size)
+
+		img = np.array(img)
 		# img = self.roi_transforms(img).unsqueeze(0)
 		return img, coord
