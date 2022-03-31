@@ -114,11 +114,6 @@ class ContrastiveExtractor():
             out = self.model(tensor)
             frame = pd.DataFrame(out.cpu().detach().numpy())
 
-            del out
-            del images
-            del tensor
-            del img_paths
-
             return frame
 
 
