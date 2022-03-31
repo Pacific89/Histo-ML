@@ -160,7 +160,8 @@ class ContrastiveExtractor():
             all_coords = np.array(f["coords"])
 
         all_feat_frame = pd.DataFrame([])
-        more_itertools.chunked(all_coords, self.batch_size)
+        chunked_list = more_itertools.chunked(all_coords, self.batch_size)
+        print(chunked_list)
         for coord_subset in tqdm(chunked_list):
             patch_array = self.create_patch_dict(coord_subset)
             frame = self.extract_features(patch_array)
