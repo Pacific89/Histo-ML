@@ -93,6 +93,8 @@ class ContrastiveExtractor():
     def load_imgs(self, img_paths):
         try:
             return np.array([np.reshape(np.array(Image.open(img).convert('RGB').resize((224,224))), (3,224,224)) for img in img_paths])
+        except:
+            return np.array([])
 
     def extract_features(self, imgs):
         # image = np.array(Image.open(os.path.join(path, img_paths[0])))
