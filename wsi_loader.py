@@ -15,7 +15,23 @@ import h5py
 
 from random import randrange
 
+def eval_transforms(pretrained=False):
+	if pretrained:
+		mean = (0.485, 0.456, 0.406)
+		std = (0.229, 0.224, 0.225)
 
+	else:
+		mean = (0.5,0.5,0.5)
+		std = (0.5,0.5,0.5)
+
+	trnsfrms_val = transforms.Compose(
+					[
+					 transforms.ToTensor(),
+					 transforms.Normalize(mean = mean, std = std)
+					]
+				)
+
+	return trnsfrms_val
 
 
 class Whole_Slide_Bag_FP(Dataset):
