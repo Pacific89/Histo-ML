@@ -112,7 +112,7 @@ class ContrastiveExtractor():
             tensor = torch.from_numpy(imgs).float().to(device)
 
             out = self.model(tensor)
-            frame = pd.DataFrame(out.cpu().detach().numpy(), index=img_paths)
+            frame = pd.DataFrame(out.cpu().detach().numpy())
 
             del out
             del images
