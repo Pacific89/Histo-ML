@@ -19,7 +19,7 @@ from torch.utils.data import Dataset, DataLoader, sampler
 
 class ContrastiveExtractor():
 
-    def __init__(self, base_path, batch_size=1500, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
+    def __init__(self, base_path, batch_size=1000, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
 
 
         self.batch_size = batch_size
