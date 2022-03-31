@@ -86,6 +86,6 @@ class Whole_Slide_Bag_FP(Dataset):
 			img = img.resize(self.target_patch_size)
 
 		print(np.array(img).shape)
-		img = np.array(img)
+		img = np.array(img).transpose()
 		# img = self.roi_transforms(img).unsqueeze(0)
 		return img, coord
