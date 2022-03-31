@@ -107,7 +107,7 @@ class ContrastiveExtractor():
             # Convert the image to PyTorch tensor 
             # tensor = transform(images)
 
-            device = torch.device("{'cuda:1':'cuda:0'}" if torch.cuda.is_available() else "cpu")
+            device = torch.device("cuda:0,1" if torch.cuda.is_available() else "cpu")
             # print("Device:", device)
             tensor = torch.from_numpy(imgs).float().to(device)
 
@@ -161,7 +161,7 @@ class ContrastiveExtractor():
 
         all_feat_frame = pd.DataFrame([])
         chunked_list = list(more_itertools.chunked(all_coords, self.batch_size))
-        print(chunked_list)
+
         for coord_subset in tqdm(chunked_list):
             patch_array = self.create_patch_dict(coord_subset)
             frame = self.extract_features(patch_array)
