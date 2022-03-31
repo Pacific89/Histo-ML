@@ -28,6 +28,7 @@ class ContrastiveExtractor():
         if os.path.isfile(base_path):
             self.h5path = base_path
             self.get_wsi_path()
+            self.wsi = openslide.OpenSlide(wsi_path)
         else:   
             self.wsi_paths = self.get_wsi_paths()
             print(self.wsi_paths)
@@ -174,9 +175,7 @@ class ContrastiveExtractor():
 
     def get_patch(self, coords, wsi_path, patch_size=256):
 
-        wsi = openslide.OpenSlide(wsi_path)
-
-        patch = wsi.read_region(tuple(coords), level=0, size=(patch_size, patch_size)).convert('RGB')
+        patch = self.wsi.read_region(tuple(coords), level=0, size=(patch_size, patch_size)).convert('RGB')
         patch = np.reshape(patch.resize((224,224)), (3,224,224))
 
 
