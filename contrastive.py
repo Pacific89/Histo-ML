@@ -14,10 +14,11 @@ import openslide
 import h5py
 import warnings
 from matplotlib import pyplot as plt
+from wsi_loader import Whole_Slide_Bag_FP
 
 class ContrastiveExtractor():
 
-    def __init__(self, base_path, batch_size=1000, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
+    def __init__(self, base_path, batch_size=250, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
 
 
         self.batch_size = batch_size
@@ -29,6 +30,7 @@ class ContrastiveExtractor():
             self.h5path = base_path
             self.get_wsi_path()
             self.wsi = openslide.OpenSlide(self.wsi_path)
+            self.dataset = Whole_Slide_Bag_FP(file_path=h5path, wsi=self.wsi, pretrained=False, target_patch_size=224)
         else:   
             self.wsi_paths = self.get_wsi_paths()
             print(self.wsi_paths)
@@ -161,10 +163,15 @@ class ContrastiveExtractor():
 
         all_feat_frame = pd.DataFrame([])
         chunked_list = list(more_itertools.chunked(all_coords, self.batch_size))
-        for coord_subset in tqdm(chunked_list):
-            patch_array = self.create_patch_dict(coord_subset)
-            frame = self.extract_features(patch_array)
 
+        loader = DataLoader(dataset=self.dataset, batch_size=self.batch_size)
+
+        for count, (batch, coords) in tqdm(enumerate(loader)):
+            batch = batch.to(device, non_blocking=True)
+            features = self.model(batch)
+            # patch_array = self.create_patch_dict(coord_subset)
+            # frame = self.extract_features(patch_array)
+            features = pd.DataFrame(features.cpu().numpy())
             all_feat_frame = pd.concat([all_feat_frame, frame])
 
         all_feat_frame.to_csv(os.path.join("features_frame.csv"))
