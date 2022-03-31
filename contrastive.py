@@ -174,12 +174,10 @@ class ContrastiveExtractor():
 
     def get_patch(self, coords, wsi_path, patch_size=256):
 
-        with warnings.catch_warnings(record=True) as w:
-            wsi = openslide.OpenSlide(wsi_path)
-            print("Warning: ", type(w[0]))
+        wsi = openslide.OpenSlide(wsi_path)
 
-            patch = wsi.read_region(tuple(coords), level=0, size=(patch_size, patch_size)).convert('RGB')
-            patch = patch.resize((3,224,224))
+        patch = wsi.read_region(tuple(coords), level=0, size=(patch_size, patch_size)).convert('RGB')
+        patch = patch.resize((3,224,224))
 
 
         # plt.figure()
