@@ -95,22 +95,21 @@ class ContrastiveExtractor():
             return np.array([np.reshape(np.array(Image.open(img).convert('RGB').resize((224,224))), (3,224,224)) for img in img_paths])
 
     def extract_features(self, imgs):
-
         # image = np.array(Image.open(os.path.join(path, img_paths[0])))
 
-            # Define a transform to convert the image to tensor
-            transform = transforms.ToTensor() 
-            # Convert the image to PyTorch tensor 
-            # tensor = transform(images)
+        # Define a transform to convert the image to tensor
+        transform = transforms.ToTensor() 
+        # Convert the image to PyTorch tensor 
+        # tensor = transform(images)
 
-            device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-            # print("Device:", device)
-            tensor = torch.from_numpy(imgs).float().to(device)
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        # print("Device:", device)
+        tensor = torch.from_numpy(imgs).float().to(device)
 
-            out = self.model(tensor)
-            frame = pd.DataFrame(out.cpu().detach().numpy())
+        out = self.model(tensor)
+        frame = pd.DataFrame(out.cpu().detach().numpy())
 
-            return frame
+        return frame
 
 
 
