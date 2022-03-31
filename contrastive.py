@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 
 class ContrastiveExtractor():
 
-    def __init__(self, base_path, batch_size=1000, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
+    def __init__(self, base_path, batch_size=10000, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
 
 
         self.batch_size = batch_size
@@ -160,13 +160,14 @@ class ContrastiveExtractor():
             all_coords = np.array(f["coords"])
 
         all_feat_frame = pd.DataFrame([])
-
-        for coord_subset in tqdm(more_itertools.chunked(all_coords, self.batch_size)):
+        more_itertools.chunked(all_coords, self.batch_size)
+        for coord_subset in tqdm(chunked_list):
             patch_array = self.create_patch_dict(coord_subset)
             frame = self.extract_features(patch_array)
 
             all_feat_frame = pd.concat([all_feat_frame, frame])
 
+        all_feat_frame.to_csv(os.path.join("features_frame.csv"))
 
     def get_patch(self, coords, wsi_path, patch_size=256):
 
