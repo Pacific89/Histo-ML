@@ -38,7 +38,7 @@ class ContrastiveExtractor():
         self.return_preactivation = return_preactivation  # return features from the model, if false return classification logits
         # self.num_classes = 10  # only used if self.return_preactivation = False
 
-        # self.model = self.load_model()
+        self.model = self.load_model()
 
         print("Initialized")
 
@@ -200,7 +200,6 @@ class ContrastiveExtractor():
             patch_array[count] = patch
             count += 1
 
-        print(patch_array)
         return patch_array
 
 
