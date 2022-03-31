@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 
 class ContrastiveExtractor():
 
-    def __init__(self, base_path, batch_size=2500, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
+    def __init__(self, base_path, batch_size=1000, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
 
 
         self.batch_size = batch_size
@@ -55,7 +55,7 @@ class ContrastiveExtractor():
         
     def load_model(self):
         model = torchvision.models.__dict__['resnet18'](pretrained=False)
-        torch.cuda.empty_cache()
+
         try:
             state = torch.load(self.model_path, map_location='cuda:0')
             # img_path = "/home/simon/philipp/patches/DigitalSlide_A1M_9S_1_20190127165819218"
