@@ -15,6 +15,7 @@ import h5py
 import warnings
 from matplotlib import pyplot as plt
 from wsi_loader import Whole_Slide_Bag_FP
+from utils.utils import print_network, collate_features
 from torch.utils.data import Dataset, DataLoader, sampler
 
 class ContrastiveExtractor():
@@ -31,7 +32,11 @@ class ContrastiveExtractor():
             self.h5path = base_path
             self.get_wsi_path()
             self.wsi = openslide.OpenSlide(self.wsi_path)
-            self.dataset = Whole_Slide_Bag_FP(file_path=h5path, wsi=self.wsi, pretrained=False, target_patch_size=224)
+
+            dataset = Whole_Slide_Bag_FP(file_path=h5path, wsi=self.wsi, pretrained=False, target_patch_size=224)
+            kwargs = {'num_workers': 4, 'pin_memory': True} if device.type == "cuda" else {}
+            self.loader = DataLoader(dataset=dataset, batch_size=batch_size, **kwargs, collate_fn=collate_features)
+
         else:   
             self.wsi_paths = self.get_wsi_paths()
             print(self.wsi_paths)
@@ -159,10 +164,22 @@ class ContrastiveExtractor():
         all_feat_frame = pd.DataFrame([])
         chunked_list = list(more_itertools.chunked(all_coords, self.batch_size))
 
-        for coord_subset in tqdm(chunked_list):
+        for count, (batch, coords) in enumerate(self.loader):
+            with torch.no_grad():	
+                if count % print_every == 0:
+                    print('batch {}/{}, {} files processed'.format(count, len(loader), count * batch_size))
+                batch = batch.to(device, non_blocking=True)
+                mini_bs = coords.shape[0]
+                
+                features = model(batch)
+                feat_frame = pd.DataFrame(features.cpu().numpy())
 
-            patch_array = self.create_patch_dict(coord_subset)
-            frame = self.extract_features(patch_array)
+                all_feat_frame = pd.concat([all_feat_frame, feat_frame], ignore_index=True)
+
+        # for coord_subset in tqdm(chunked_list):
+
+        #     patch_array = self.create_patch_dict(coord_subset)
+        #     frame = self.extract_features(patch_array)
 
         all_feat_frame.to_csv(os.path.join("features_frame.csv"))
 
