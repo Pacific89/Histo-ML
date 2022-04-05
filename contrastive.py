@@ -54,7 +54,7 @@ class ContrastiveExtractor():
         print("Initialized")
 
     def collate_features(self, batch):
-        img = torch.cat([item[0] for item in batch], dim = 0)
+        img = torch.cat([torch.from_numpy(item[0]) for item in batch], dim = 0)
         coords = np.vstack([item[1] for item in batch])
         return [img, coords]
 
