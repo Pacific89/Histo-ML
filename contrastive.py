@@ -33,7 +33,9 @@ class ContrastiveExtractor():
             self.wsi = openslide.OpenSlide(self.wsi_path)
 
             dataset = Whole_Slide_Bag_FP(file_path=h5path, wsi=self.wsi, pretrained=False, target_patch_size=224)
-            kwargs = {'num_workers': 4, 'pin_memory': True} if device.type == "cuda" else {}
+            self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+            kwargs = {'num_workers': 4, 'pin_memory': True} if self.device.type == "cuda" else {}
             self.loader = DataLoader(dataset=dataset, batch_size=batch_size, **kwargs, collate_fn=self.collate_features)
 
         else:   
@@ -112,9 +114,8 @@ class ContrastiveExtractor():
         # Convert the image to PyTorch tensor 
         # tensor = transform(images)
 
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         # print("Device:", device)
-        tensor = torch.from_numpy(imgs).float().to(device)
+        tensor = torch.from_numpy(imgs).float().to(self.device)
 
         out = self.model(tensor)
         frame = pd.DataFrame(out.cpu().detach().numpy())
