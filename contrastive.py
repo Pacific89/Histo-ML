@@ -36,7 +36,7 @@ class ContrastiveExtractor():
             dataset = Whole_Slide_Bag_FP(file_path=h5path, wsi=self.wsi, pretrained=False, target_patch_size=224)
             self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-            kwargs = {'num_workers': 4, 'pin_memory': True} if self.device.type == "cuda" else {}
+            kwargs = {'num_workers': 16, 'pin_memory': True} if self.device.type == "cuda" else {}
             self.loader = DataLoader(dataset=dataset, batch_size=batch_size, **kwargs, collate_fn=self.collate_features)
 
         else:   
