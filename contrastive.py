@@ -174,7 +174,6 @@ class ContrastiveExtractor():
                 if count % print_every == 0:
                     print('batch {}/{}, {} files processed'.format(count, len(self.loader), count * self.batch_size))
                 batch = batch.to(device, non_blocking=True)
-                mini_bs = coords.shape[0]
                 
                 features = model(batch)
                 feat_frame = pd.DataFrame(features.cpu().numpy())
