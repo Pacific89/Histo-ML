@@ -173,9 +173,9 @@ class ContrastiveExtractor():
             with torch.no_grad():	
                 if count % print_every == 0:
                     print('batch {}/{}, {} files processed'.format(count, len(self.loader), count * self.batch_size))
-                batch = batch.to(device, non_blocking=True)
+                batch = batch.to(self.device, non_blocking=True)
                 
-                features = model(batch)
+                features = self.model(batch)
                 feat_frame = pd.DataFrame(features.cpu().numpy())
 
                 all_feat_frame = pd.concat([all_feat_frame, feat_frame], ignore_index=True)
