@@ -243,7 +243,8 @@ if __name__ == "__main__":
             
     elif len(h5path) > 0:
         ce = ContrastiveExtractor(h5path)
-        ce.extract_features_from_h5file()
+        print("Model:", ce.model)
+        # ce.extract_features_from_h5file()
 
 
 
