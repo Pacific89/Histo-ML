@@ -49,6 +49,7 @@ class ContrastiveExtractor():
         # self.num_classes = 10  # only used if self.return_preactivation = False
 
         self.model = self.load_model()
+        self.model = self.model.to(self.device)
 
         print("Initialized")
 
@@ -87,7 +88,7 @@ class ContrastiveExtractor():
         else:
             model.fc = torch.nn.Linear(model.fc.in_features, self.num_classes)
 
-        return model.cuda()
+        return model
 
 
     def load_model_weights(self, model, weights):
