@@ -16,6 +16,7 @@ import warnings
 from matplotlib import pyplot as plt
 from wsi_loader import Whole_Slide_Bag_FP
 from torch.utils.data import Dataset, DataLoader, sampler
+from torchsummary import summary
 
 class ContrastiveExtractor():
 
@@ -243,7 +244,7 @@ if __name__ == "__main__":
             
     elif len(h5path) > 0:
         ce = ContrastiveExtractor(h5path)
-        print("Model:", ce.model)
+        print("Model:", summary(ce.model))
         # ce.extract_features_from_h5file()
 
 
