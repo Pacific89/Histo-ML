@@ -172,7 +172,7 @@ class ContrastiveExtractor():
         for count, (batch, coords) in enumerate(self.loader):
             with torch.no_grad():	
                 if count % print_every == 0:
-                    print('batch {}/{}, {} files processed'.format(count, len(loader), count * batch_size))
+                    print('batch {}/{}, {} files processed'.format(count, len(self.loader), count * self.batch_size))
                 batch = batch.to(device, non_blocking=True)
                 mini_bs = coords.shape[0]
                 
