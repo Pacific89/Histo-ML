@@ -87,5 +87,6 @@ class Whole_Slide_Bag_FP(Dataset):
 
 		# img = np.array(img).transpose()
 		img = np.array(img)
-		img = np.array(eval_transforms())
+		# img = eval_transforms()
+		print("shape: ", img.shape)
 		return img, coord
