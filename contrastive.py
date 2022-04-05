@@ -244,7 +244,7 @@ if __name__ == "__main__":
             
     elif len(h5path) > 0:
         ce = ContrastiveExtractor(h5path)
-        print("Model:", summary(ce.model))
+        print("Model:", summary(ce.model, (3,224,224)))
         # ce.extract_features_from_h5file()
 
 
