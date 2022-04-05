@@ -86,7 +86,7 @@ class Whole_Slide_Bag_FP(Dataset):
 			img = img.resize(self.target_patch_size)
 
 		# img = np.array(img).transpose()
-		img = np.array(img)
+		img = np.array(img).reshape((1,3,224,224))
 		# img = eval_transforms()
 		print("shape: ", img.shape)
 		return img, coord
