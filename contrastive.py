@@ -166,7 +166,7 @@ class ContrastiveExtractor():
             all_coords = np.array(f["coords"])
 
         all_feat_frame = pd.DataFrame([])
-        chunked_list = list(more_itertools.chunked(all_coords, self.batch_size))
+        # chunked_list = list(more_itertools.chunked(all_coords, self.batch_size))
         print_every = 20
 
         for count, (batch, coords) in enumerate(self.loader):
