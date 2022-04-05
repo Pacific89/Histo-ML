@@ -167,6 +167,7 @@ class ContrastiveExtractor():
 
         all_feat_frame = pd.DataFrame([])
         chunked_list = list(more_itertools.chunked(all_coords, self.batch_size))
+        print_every = 20
 
         for count, (batch, coords) in enumerate(self.loader):
             with torch.no_grad():	
