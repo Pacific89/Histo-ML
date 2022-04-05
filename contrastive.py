@@ -15,7 +15,6 @@ import h5py
 import warnings
 from matplotlib import pyplot as plt
 from wsi_loader import Whole_Slide_Bag_FP
-from utils.utils import print_network, collate_features
 from torch.utils.data import Dataset, DataLoader, sampler
 
 class ContrastiveExtractor():
@@ -35,7 +34,7 @@ class ContrastiveExtractor():
 
             dataset = Whole_Slide_Bag_FP(file_path=h5path, wsi=self.wsi, pretrained=False, target_patch_size=224)
             kwargs = {'num_workers': 4, 'pin_memory': True} if device.type == "cuda" else {}
-            self.loader = DataLoader(dataset=dataset, batch_size=batch_size, **kwargs, collate_fn=collate_features)
+            self.loader = DataLoader(dataset=dataset, batch_size=batch_size, **kwargs, collate_fn=self.collate_features)
 
         else:   
             self.wsi_paths = self.get_wsi_paths()
@@ -50,6 +49,10 @@ class ContrastiveExtractor():
 
         print("Initialized")
 
+    def collate_features(self, batch):
+	img = torch.cat([item[0] for item in batch], dim = 0)
+	coords = np.vstack([item[1] for item in batch])
+	return [img, coords]
 
     def get_wsi_path(self):
 
