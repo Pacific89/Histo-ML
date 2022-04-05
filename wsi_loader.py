@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 from torch.utils.data import Dataset, DataLoader, sampler
-
+from torchvision import transforms, utils, models
 from PIL import Image
 import h5py
 
