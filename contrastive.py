@@ -176,6 +176,8 @@ class ContrastiveExtractor():
                 if count % print_every == 0:
                     print('batch {}/{}, {} files processed'.format(count, len(self.loader), count * self.batch_size))
                 batch = batch.to(self.device, non_blocking=True)
+
+                print("batch: ", batch.shape)
                 
                 features = self.model(batch)
                 feat_frame = pd.DataFrame(features.cpu().numpy())
