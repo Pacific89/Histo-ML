@@ -231,18 +231,18 @@ if __name__ == "__main__":
     base_path = args.parentpath
     blockmap = args.blockmap
 
-    if len(base_path) > 0:
-        ce = ContrastiveExtractor(args)
-        for wsi_path in ce.wsi_paths:
-            print("File: ", wsi_path)
-            feat_file = os.path.join(wsi_path, "features_frame.csv")
+    # if len(base_path) > 0:
+    #     ce = ContrastiveExtractor(args)
+    #     for wsi_path in ce.wsi_paths:
+    #         print("File: ", wsi_path)
+    #         feat_file = os.path.join(wsi_path, "features_frame.csv")
             
-            if os.path.isfile(feat_file):
-                print("Features found")
-                continue
-            else:
-                print("Calculating features...")
-                ce.extract_features_from_patchfiles(wsi_path)
+    #         if os.path.isfile(feat_file):
+    #             print("Features found")
+    #             continue
+    #         else:
+    #             print("Calculating features...")
+    #             ce.extract_features_from_patchfiles(wsi_path)
 
             
     else:
