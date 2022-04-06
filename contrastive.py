@@ -245,10 +245,10 @@ if __name__ == "__main__":
     #             ce.extract_features_from_patchfiles(wsi_path)
 
             
-    else:
-        ce = ContrastiveExtractor(args)
-        # print("Model:", summary(ce.model, (3,224,224)))
-        ce.extract_features_from_h5file()
+    # else:
+    ce = ContrastiveExtractor(args)
+    # print("Model:", summary(ce.model, (3,224,224)))
+    ce.extract_features_from_h5file()
 
 
 
