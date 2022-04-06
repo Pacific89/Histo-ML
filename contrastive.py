@@ -32,7 +32,7 @@ class ContrastiveExtractor():
         
         self.wsi = openslide.OpenSlide(self.wsi_path)
 
-        dataset = Whole_Slide_Bag_FP(file_path=self.blockmap, wsi=self.wsi, pretrained=False, target_patch_size=224)
+        dataset = Whole_Slide_Bag_FP(file_path=self.patch_h5, wsi=self.wsi, pretrained=False, target_patch_size=224)
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         kwargs = {'num_workers': 8, 'pin_memory': True} if self.device.type == "cuda" else {}
@@ -64,10 +64,14 @@ class ContrastiveExtractor():
         for root, dirs, files in os.walk(parent_folder):
             for f in files:
                 if "blockmap.h5" in f:
-                    self.blockmap = os.path.join(root, f)
-                    print("Blockmap found: ", self.blockmap)
+                    self.patch_h5 = os.path.join(root, f)
+                    print("Blockmap found: ", self.patch_h5)
 
+                elif self.wsi_name + ".h5" in f:
+                    self.patch_h5 = os.path.join(root, f)
+                    print("Patch File found: ", self.patch_h5)
         
+
     def load_model(self):
         model = torchvision.models.__dict__['resnet18'](pretrained=False)
 
@@ -160,7 +164,7 @@ class ContrastiveExtractor():
 
     def extract_features_from_h5file(self):
 
-        with h5py.File(self.blockmap, "r") as f:
+        with h5py.File(self.patch_h5, "r") as f:
             all_coords = np.array(f["coords"])
 
         all_feat_frame = pd.DataFrame([])
@@ -221,15 +225,15 @@ if __name__ == "__main__":
     # self.model_path_ = '/home/user/Documents/Master/contrastive_learning/tenpercent_resnet18.ckpt'
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-pp', '--parentpath', type=str, required=False, default='/media/user/easystore/HRD-Subset-I/DigitalSlide_A1M_1S_1_20190127153038919')
-    parser.add_argument('-hp', '--blockmap', type=str, required=False, default='')
+    parser.add_argument('-pp', '--parentpath', type=str, required=False, default='/media/user/easystore/HRD-Subset-I/DigitalSlide_A1M_9S_1_20190127165819218')
+    parser.add_argument('-hp', '--patch_h5', type=str, required=False, default='')
     parser.add_argument('-o', '--outfolder', type=str, required=False, default='')
     parser.add_argument('-m', '--modelpath', type=str, required=False, default='/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt')
 
     args = parser.parse_args()
 
     base_path = args.parentpath
-    blockmap = args.blockmap
+    patch_h5 = args.patch_h5
 
     # if len(base_path) > 0:
     #     ce = ContrastiveExtractor(args)
