@@ -4,6 +4,7 @@ import PIL
 from PIL import Image 
 import torchvision.transforms as transforms
 import os
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import more_itertools
@@ -20,31 +21,24 @@ from torchsummary import summary
 
 class ContrastiveExtractor():
 
-    def __init__(self, base_path, batch_size=1000, model_path="/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt", return_preactivation = True):
+    def __init__(self, args, batch_size=1000, return_preactivation = True):
 
 
         self.batch_size = batch_size
-        self.base_path = base_path
+        self.base_path = args.parentpath
+        self.outfolder = args.outfolder
 
-        print(self.base_path)
+        self.get_wsi_path()
+        
+        self.wsi = openslide.OpenSlide(self.wsi_path)
 
-        if os.path.isfile(base_path):
-            self.h5path = base_path
-            self.get_wsi_path()
-            self.wsi = openslide.OpenSlide(self.wsi_path)
+        dataset = Whole_Slide_Bag_FP(file_path=self.blockmap, wsi=self.wsi, pretrained=False, target_patch_size=224)
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-            dataset = Whole_Slide_Bag_FP(file_path=h5path, wsi=self.wsi, pretrained=False, target_patch_size=224)
-            self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        kwargs = {'num_workers': 16, 'pin_memory': True} if self.device.type == "cuda" else {}
+        self.loader = DataLoader(dataset=dataset, batch_size=batch_size, **kwargs, collate_fn=self.collate_features)
 
-            kwargs = {'num_workers': 16, 'pin_memory': True} if self.device.type == "cuda" else {}
-            self.loader = DataLoader(dataset=dataset, batch_size=batch_size, **kwargs, collate_fn=self.collate_features)
-
-        else:   
-            self.wsi_paths = self.get_wsi_paths()
-            print(self.wsi_paths)
-
-        self.model_path_ = model_path
-        # self.model_path_ = '/home/user/Documents/Master/contrastive_learning/tenpercent_resnet18.ckpt'
+        self.model_path = args.modelpath
         self.return_preactivation = return_preactivation  # return features from the model, if false return classification logits
         # self.num_classes = 10  # only used if self.return_preactivation = False
 
@@ -60,22 +54,24 @@ class ContrastiveExtractor():
 
     def get_wsi_path(self):
 
-        parent_folder = self.h5path.split("/results")[0]
-        self.wsi_name = parent_folder.split("/")[-1]
+        parent_folder = Path(self.base_path)
+        self.wsi_name = os.listdir(os.path.join(parent_folder, "data"))[0].replace(".svs", "")
         self.wsi_path = os.path.join(os.path.join(parent_folder, "data"), self.wsi_name + ".svs")
 
         print("Using WSI File: ", self.wsi_name)
         print("With Abs Path: ", self.wsi_path)
+        
+        for root, dirs, files in os.walk(parent_folder):
+            for f in files:
+                if "blockmap.h5" in f:
+                    self.blockmap = os.path.join(root, f)
+                    print("Blockmap found: ", self.blockmap)
 
         
     def load_model(self):
         model = torchvision.models.__dict__['resnet18'](pretrained=False)
 
-        try:
-            state = torch.load(self.model_path, map_location='cuda:0')
-            # img_path = "/home/simon/philipp/patches/DigitalSlide_A1M_9S_1_20190127165819218"
-        except:
-            state = torch.load(self.model_path_, map_location='cuda:0')
+        state = torch.load(self.model_path, map_location='cuda:0')
 
         state_dict = state['state_dict']
         for key in list(state_dict.keys()):
@@ -164,7 +160,7 @@ class ContrastiveExtractor():
 
     def extract_features_from_h5file(self):
 
-        with h5py.File(self.h5path, "r") as f:
+        with h5py.File(self.blockmap, "r") as f:
             all_coords = np.array(f["coords"])
 
         all_feat_frame = pd.DataFrame([])
@@ -222,17 +218,21 @@ class ContrastiveExtractor():
 
 if __name__ == "__main__":
     # images = torch.rand((10, 3, 224, 224), device='cuda')
+    # self.model_path_ = '/home/user/Documents/Master/contrastive_learning/tenpercent_resnet18.ckpt'
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-pp', '--parentpath', type=str, required=False, default='')
-    parser.add_argument('-hp', '--h5path', type=str, required=False, default='/media/user/easystore/HRD-Subset-I/DigitalSlide_A1M_1S_1_20190127153208246/results/7fdd6b3355754fe88db4ebfc72f2c0b8/raw/heat/Unspecified/DigitalSlide_A1M_1S_1_20190127153208246/DigitalSlide_A1M_1S_1_20190127153208246_blockmap.h5')
+    parser.add_argument('-pp', '--parentpath', type=str, required=False, default='/media/user/easystore/HRD-Subset-I/DigitalSlide_A1M_1S_1_20190127153038919')
+    parser.add_argument('-hp', '--blockmap', type=str, required=False, default='')
+    parser.add_argument('-o', '--outfolder', type=str, required=False, default='')
+    parser.add_argument('-m', '--modelpath', type=str, required=False, default='/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt')
+
     args = parser.parse_args()
 
     base_path = args.parentpath
-    h5path = args.h5path
+    blockmap = args.blockmap
 
     if len(base_path) > 0:
-        ce = ContrastiveExtractor(base_path)
+        ce = ContrastiveExtractor(args)
         for wsi_path in ce.wsi_paths:
             print("File: ", wsi_path)
             feat_file = os.path.join(wsi_path, "features_frame.csv")
@@ -245,8 +245,8 @@ if __name__ == "__main__":
                 ce.extract_features_from_patchfiles(wsi_path)
 
             
-    elif len(h5path) > 0:
-        ce = ContrastiveExtractor(h5path)
+    else:
+        ce = ContrastiveExtractor(args)
         # print("Model:", summary(ce.model, (3,224,224)))
         ce.extract_features_from_h5file()
 
