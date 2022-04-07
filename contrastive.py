@@ -190,9 +190,9 @@ class ContrastiveExtractor():
                 feat_frame = pd.DataFrame(features.cpu().numpy())
                 coords_frame = pd.DataFrame(data=coords, columns=["x", "y"])
 
-                feat_frame = pd.concat([coords_frame, feat_frame], axis=1, ignore_index=True)
+                feat_frame = pd.concat([coords_frame, feat_frame], axis=1)
 
-                all_feat_frame = pd.concat([all_feat_frame, feat_frame], ignore_index=True)
+                all_feat_frame = pd.concat([all_feat_frame, feat_frame])
 
         # for coord_subset in tqdm(chunked_list):
 
@@ -200,12 +200,13 @@ class ContrastiveExtractor():
         #     frame = self.extract_features(patch_array)
 
         csv_name = "{0}_features_frame.csv".format(self.wsi_name)
+        h5_name = "{0}_features_frame.h5".format(self.wsi_name)
 
         if not os.path.isdir(self.outfolder):
             os.makedirs(self.outfolder)
 
-        all_feat_frame.to_csv(os.path.join(self.outfolder, csv_name))
-
+        # all_feat_frame.to_csv(os.path.join(self.outfolder, csv_name))
+        all_feat_frame.to_hdf(os.path.join(self.outfolder, h5_name))
 
     def get_patch(self, coords, wsi_path, patch_size=256):
 
