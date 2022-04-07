@@ -202,7 +202,7 @@ class ContrastiveExtractor():
                 dset[-data_shape[0]:] = val
         file.close()
 
-    return output_path
+        return output_path
 
 
     def extract_features_from_h5file(self):
