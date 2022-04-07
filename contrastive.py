@@ -75,6 +75,7 @@ class ContrastiveExtractor():
 
         if len(self.patch_h5) == 0:
             print("No CLAM h5 coords detected for file: ", self.wsi_path)
+            print("Aborting...")
             sys.exit()
         
 
