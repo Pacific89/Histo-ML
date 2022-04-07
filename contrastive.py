@@ -201,6 +201,9 @@ class ContrastiveExtractor():
 
         csv_name = "{0}_features_frame.csv".format(self.wsi_name)
 
+        if not os.path.isdir(self.outfolder):
+            os.makedirs(self.outfolder)
+
         all_feat_frame.to_csv(os.path.join(self.outfolder, csv_name))
 
 
