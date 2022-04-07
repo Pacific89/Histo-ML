@@ -231,12 +231,6 @@ class ContrastiveExtractor():
                 print("batch: ", batch.shape)
                 
                 features = self.model(batch).cpu().numpy()
-                # features = pd.DataFrame(features.cpu().numpy())
-                # coords = pd.DataFrame(data=coords)
-
-                # feat_frame = pd.concat([coords_frame, feat_frame], axis=1, ignore_index=True)
-
-                # all_feat_frame = pd.concat([all_feat_frame, feat_frame], ignore_index=True)
 
                 # write to hdf5 from CLAM:
                 asset_dict = {'features': features, 'coords': coords}
