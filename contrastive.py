@@ -206,7 +206,7 @@ class ContrastiveExtractor():
             os.makedirs(self.outfolder)
 
         # all_feat_frame.to_csv(os.path.join(self.outfolder, csv_name))
-        all_feat_frame.to_hdf(os.path.join(self.outfolder, h5_name))
+        all_feat_frame.to_hdf(os.path.join(self.outfolder, h5_name), "feat_frame")
 
     def get_patch(self, coords, wsi_path, patch_size=256):
 
