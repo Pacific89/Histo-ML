@@ -181,6 +181,9 @@ class ContrastiveExtractor():
                 
                 features = self.model(batch)
                 feat_frame = pd.DataFrame(features.cpu().numpy())
+                coords_frame = pd.DataFrame(coords)
+
+                feat_frame = pd.concat([coords_frame, feat_frame], axis=1, ignore_index=True)
 
                 all_feat_frame = pd.concat([all_feat_frame, feat_frame], ignore_index=True)
 
@@ -189,7 +192,10 @@ class ContrastiveExtractor():
         #     patch_array = self.create_patch_dict(coord_subset)
         #     frame = self.extract_features(patch_array)
 
-        all_feat_frame.to_csv(os.path.join("features_frame.csv"))
+        csv_name = "{0}_features_frame.csv".format(self.wsi_name)
+
+        all_feat_frame.to_csv(os.path.join(self.outfolder, csv_name))
+
 
     def get_patch(self, coords, wsi_path, patch_size=256):
 
