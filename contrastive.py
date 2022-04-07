@@ -188,7 +188,7 @@ class ContrastiveExtractor():
                 
                 features = self.model(batch)
                 feat_frame = pd.DataFrame(features.cpu().numpy())
-                coords_frame = pd.DataFrame(coords)
+                coords_frame = pd.DataFrame(data=coords, index=["x", "y"])
 
                 feat_frame = pd.concat([coords_frame, feat_frame], axis=1, ignore_index=True)
 
