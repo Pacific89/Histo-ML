@@ -238,7 +238,7 @@ if __name__ == "__main__":
     # self.model_path_ = '/home/user/Documents/Master/contrastive_learning/tenpercent_resnet18.ckpt'
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-pp', '--parentpath', type=str, required=False, default='/home/simon/philipp/HRD-Subset-I/DigitalSlide_A1M_3S_1_20190127155031032')
+    parser.add_argument('-pp', '--parentpath', type=str, required=False, default='/home/simon/philipp/HRD-Subset-I/DigitalSlide_A1M_9S_1_20190127165819218')
     parser.add_argument('-hp', '--patch_h5', type=str, required=False, default='')
     parser.add_argument('-o', '--outfolder', type=str, required=False, default='')
     parser.add_argument('-m', '--modelpath', type=str, required=False, default='/home/simon/philipp/checkpoints/tenpercent_resnet18.ckpt')
