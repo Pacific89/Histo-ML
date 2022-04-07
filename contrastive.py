@@ -168,6 +168,42 @@ class ContrastiveExtractor():
 
         dataframe.to_csv(os.path.join(wsi_path, "features_frame.csv"))
 
+    def save_hdf5(self, output_path, asset_dict, attr_dict= None, mode='a'):
+        """CLAMs hdf5 save function:
+
+        Parameters
+        ----------
+        output_path : [type]
+            [description]
+        asset_dict : [type]
+            [description]
+        attr_dict : [type], optional
+            [description], by default None
+        mode : str, optional
+            [description], by default 'a'
+        """
+
+        file = h5py.File(output_path, mode)
+        for key, val in asset_dict.items():
+            data_shape = val.shape
+            if key not in file:
+                data_type = val.dtype
+                chunk_shape = (1, ) + data_shape[1:]
+                maxshape = (None, ) + data_shape[1:]
+                dset = file.create_dataset(key, shape=data_shape, maxshape=maxshape, chunks=chunk_shape, dtype=data_type)
+                dset[:] = val
+                if attr_dict is not None:
+                    if key in attr_dict.keys():
+                        for attr_key, attr_val in attr_dict[key].items():
+                            dset.attrs[attr_key] = attr_val
+            else:
+                dset = file[key]
+                dset.resize(len(dset) + data_shape[0], axis=0)
+                dset[-data_shape[0]:] = val
+        file.close()
+
+    return output_path
+
 
     def extract_features_from_h5file(self):
 
@@ -178,6 +214,14 @@ class ContrastiveExtractor():
         chunked_list = list(more_itertools.chunked(all_coords, self.batch_size))
         print_every = 20
 
+        if not os.path.isdir(self.outfolder):
+            os.makedirs(self.outfolder)
+
+        h5_name = "{0}_features_frame.h5".format(self.wsi_name)
+        output_path = os.path.join(self.outfolder, h5_name), "feat_frame"
+        
+        mode = 'w'
+
         for count, (batch, coords) in enumerate(self.loader):
             with torch.no_grad():	
                 if count % print_every == 0:
@@ -187,12 +231,17 @@ class ContrastiveExtractor():
                 print("batch: ", batch.shape)
                 
                 features = self.model(batch)
-                feat_frame = pd.DataFrame(np.hstack([coords, features.cpu().numpy()]))
-                # coords_frame = pd.DataFrame(data=coords)
+                features = pd.DataFrame(features.cpu().numpy())
+                coords = pd.DataFrame(data=coords)
 
                 # feat_frame = pd.concat([coords_frame, feat_frame], axis=1, ignore_index=True)
 
-                all_feat_frame = pd.concat([all_feat_frame, feat_frame], ignore_index=True)
+                # all_feat_frame = pd.concat([all_feat_frame, feat_frame], ignore_index=True)
+
+                # write to hdf5 from CLAM:
+                asset_dict = {'features': features, 'coords': coords}
+			    self.save_hdf5(output_path, asset_dict, attr_dict= None, mode=mode)
+			    mode = 'a'
 
         # for coord_subset in tqdm(chunked_list):
 
@@ -200,10 +249,6 @@ class ContrastiveExtractor():
         #     frame = self.extract_features(patch_array)
 
         csv_name = "{0}_features_frame.csv".format(self.wsi_name)
-        h5_name = "{0}_features_frame.h5".format(self.wsi_name)
-
-        if not os.path.isdir(self.outfolder):
-            os.makedirs(self.outfolder)
 
         # all_feat_frame.to_csv(os.path.join(self.outfolder, csv_name))
         all_feat_frame.to_hdf(os.path.join(self.outfolder, h5_name), "feat_frame")
