@@ -18,6 +18,7 @@ from matplotlib import pyplot as plt
 from wsi_loader import Whole_Slide_Bag_FP
 from torch.utils.data import Dataset, DataLoader, sampler
 from torchsummary import summary
+import sys
 
 class ContrastiveExtractor():
 
@@ -57,6 +58,7 @@ class ContrastiveExtractor():
         parent_folder = Path(self.base_path)
         self.wsi_name = os.listdir(os.path.join(parent_folder, "data"))[0].replace(".svs", "")
         self.wsi_path = os.path.join(os.path.join(parent_folder, "data"), self.wsi_name + ".svs")
+        self.patch_h5 = ""
 
         print("Using WSI File: ", self.wsi_name)
         print("With Abs Path: ", self.wsi_path)
@@ -70,6 +72,10 @@ class ContrastiveExtractor():
                 elif self.wsi_name + ".h5" in f:
                     self.patch_h5 = os.path.join(root, f)
                     print("Patch File found: ", self.patch_h5)
+
+        if len(self.patch_h5) == 0:
+            print("No CLAM h5 coords detected for file: ", self.wsi_path)
+            sys.exit()
         
 
     def load_model(self):
