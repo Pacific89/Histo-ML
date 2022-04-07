@@ -239,7 +239,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     base_path = args.parentpath
-    patch_h5 = args.patch_h5
 
     # if len(base_path) > 0:
     #     ce = ContrastiveExtractor(args)
