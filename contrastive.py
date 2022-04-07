@@ -190,9 +190,9 @@ class ContrastiveExtractor():
                 feat_frame = pd.DataFrame(features.cpu().numpy())
                 coords_frame = pd.DataFrame(data=coords, columns=["x", "y"])
 
-                feat_frame = pd.concat([coords_frame, feat_frame], axis=1)
+                feat_frame = pd.concat([coords_frame, feat_frame], axis=1, ignore_index=True)
 
-                all_feat_frame = pd.concat([all_feat_frame, feat_frame])
+                all_feat_frame = pd.concat([all_feat_frame, feat_frame], ignore_index=True)
 
         # for coord_subset in tqdm(chunked_list):
 
