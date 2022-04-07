@@ -230,8 +230,8 @@ class ContrastiveExtractor():
 
                 print("batch: ", batch.shape)
                 
-                features = self.model(batch)
-                features = pd.DataFrame(features.cpu().numpy())
+                features = self.model(batch).cpu().numpy()
+                # features = pd.DataFrame(features.cpu().numpy())
                 # coords = pd.DataFrame(data=coords)
 
                 # feat_frame = pd.concat([coords_frame, feat_frame], axis=1, ignore_index=True)
