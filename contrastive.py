@@ -187,10 +187,10 @@ class ContrastiveExtractor():
                 print("batch: ", batch.shape)
                 
                 features = self.model(batch)
-                feat_frame = pd.DataFrame(features.cpu().numpy())
-                coords_frame = pd.DataFrame(data=coords)
+                feat_frame = pd.DataFrame(np.hstack([coords, features.cpu().numpy()]))
+                # coords_frame = pd.DataFrame(data=coords)
 
-                feat_frame = pd.concat([coords_frame, feat_frame], axis=1, ignore_index=True)
+                # feat_frame = pd.concat([coords_frame, feat_frame], axis=1, ignore_index=True)
 
                 all_feat_frame = pd.concat([all_feat_frame, feat_frame], ignore_index=True)
 
@@ -206,7 +206,7 @@ class ContrastiveExtractor():
             os.makedirs(self.outfolder)
 
         # all_feat_frame.to_csv(os.path.join(self.outfolder, csv_name))
-        all_feat_frame.to_hdf(os.path.join(self.outfolder, h5_name), "feat_frame", format="table")
+        all_feat_frame.to_hdf(os.path.join(self.outfolder, h5_name), "feat_frame")
 
     def get_patch(self, coords, wsi_path, patch_size=256):
 
