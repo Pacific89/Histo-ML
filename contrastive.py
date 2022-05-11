@@ -19,6 +19,7 @@ from wsi_loader import Whole_Slide_Bag_FP
 from torch.utils.data import Dataset, DataLoader, sampler
 from torchsummary import summary
 import sys
+import tables
 
 class ContrastiveExtractor():
 
@@ -168,7 +169,7 @@ class ContrastiveExtractor():
 
         dataframe.to_csv(os.path.join(wsi_path, "features_frame.csv"))
 
-    def save_hdf5(self, asset_dict, file, attr_dict= None):
+    def save_hdf5(self, asset_dict, file, attr_dict=None):
         """CLAMs hdf5 save function:
 
         Parameters
@@ -217,7 +218,7 @@ class ContrastiveExtractor():
         output_path = os.path.join(self.outfolder, h5_name)
         
         mode = 'a'
-        file = h5py.File(output_path, mode, driver="H5FD_CORE")
+        file = tables.open_file("new_sample.h5", mode, driver="H5FD_CORE")
 
         for count, (batch, coords) in enumerate(self.loader):
             with torch.no_grad():	
@@ -231,7 +232,7 @@ class ContrastiveExtractor():
 
                 # write to hdf5 from CLAM:
                 asset_dict = {'features': features, 'coords': coords}
-                self.save_hdf5(asset_dict, file, attr_dict= None, mode=mode)
+                self.save_hdf5(asset_dict, file, attr_dict= None)
 
         # for coord_subset in tqdm(chunked_list):
 
