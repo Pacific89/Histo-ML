@@ -19,7 +19,6 @@ from wsi_loader import Whole_Slide_Bag_FP
 from torch.utils.data import Dataset, DataLoader, sampler
 from torchsummary import summary
 import sys
-import tables
 
 class ContrastiveExtractor():
 
@@ -169,7 +168,7 @@ class ContrastiveExtractor():
 
         dataframe.to_csv(os.path.join(wsi_path, "features_frame.csv"))
 
-    def save_hdf5(self, asset_dict, file, attr_dict=None):
+    def save_hdf5(self, output_path, asset_dict, attr_dict= None, mode='a'):
         """CLAMs hdf5 save function:
 
         Parameters
@@ -184,6 +183,7 @@ class ContrastiveExtractor():
             [description], by default 'a'
         """
 
+        file = h5py.File(output_path, mode)
         for key, val in asset_dict.items():
             data_shape = val.shape
             if key not in file:
@@ -200,6 +200,9 @@ class ContrastiveExtractor():
                 dset = file[key]
                 dset.resize(len(dset) + data_shape[0], axis=0)
                 dset[-data_shape[0]:] = val
+        file.close()
+
+        return output_path
 
 
     def extract_features_from_h5file(self):
@@ -217,8 +220,7 @@ class ContrastiveExtractor():
         h5_name = "{0}_features_frame.h5".format(self.wsi_name)
         output_path = os.path.join(self.outfolder, h5_name)
         
-        mode = 'a'
-        file = h5.file("new_sample.h5", mode, driver="core")
+        mode = 'w'
 
         for count, (batch, coords) in enumerate(self.loader):
             with torch.no_grad():	
@@ -232,15 +234,15 @@ class ContrastiveExtractor():
 
                 # write to hdf5 from CLAM:
                 asset_dict = {'features': features, 'coords': coords}
-                self.save_hdf5(asset_dict, file, attr_dict= None)
+                self.save_hdf5(output_path, asset_dict, attr_dict= None, mode=mode)
+                mode = 'a'
 
         # for coord_subset in tqdm(chunked_list):
 
         #     patch_array = self.create_patch_dict(coord_subset)
         #     frame = self.extract_features(patch_array)
 
-        file.close()
-        # csv_name = "{0}_features_frame.csv".format(self.wsi_name)
+        csv_name = "{0}_features_frame.csv".format(self.wsi_name)
 
         # all_feat_frame.to_csv(os.path.join(self.outfolder, csv_name))
         # all_feat_frame.to_hdf(os.path.join(self.outfolder, h5_name), "feat_frame")
