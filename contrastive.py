@@ -218,7 +218,7 @@ class ContrastiveExtractor():
         output_path = os.path.join(self.outfolder, h5_name)
         
         mode = 'a'
-        file = tables.open_file("new_sample.h5", mode, driver="H5FD_CORE")
+        file = h5.file("new_sample.h5", mode, driver="core")
 
         for count, (batch, coords) in enumerate(self.loader):
             with torch.no_grad():	
