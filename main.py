@@ -171,6 +171,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-x', '--xlsx_path', required=False, default="/media/user/easystore/HRDDATA/hrd_subset.xlsx")
     parser.add_argument('-p', '--parent_path', required=False, default="/media/user/easystore/HRDDATA")
+    parser.add_argument('-mr', '--mlp_reg', required=False, default=False)
+    parser.add_argument('-mc', '--mlp_class', required=False, default=False)
+    parser.add_argument('-svm', '--svm_class', required=False, default=False)
+    parser.add_argument('-t', '--tsne_class', required=False, default=False)
+    parser.add_argument('-uc', '--umap_class', required=False, default=False)
+    parser.add_argument('-sr', '--sgd_reg', required=False, default=False)
+
     args = parser.parse_args()
 
 
@@ -188,11 +195,17 @@ if __name__ == "__main__":
 
     # Call the different ML / data analysis functions
 
-    # tsne_func(X_train, X_test, y_train, y_test)
-    # svm_func(X_train, X_test, y_train, y_test)
-    mlp_classifier(X_train, X_test, y_train, y_test)
-    # mlp_regressor(X_train, X_test, y_train, y_test)
-    # umap_func(X_train, X_test, y_train, y_test)
-    # sgd_reg_func(X_train, X_test, y_train, y_test)
+    if args.tsne_class:
+        tsne_func(X_train, X_test, y_train, y_test)
+    if args.svm_class:
+        svm_func(X_train, X_test, y_train, y_test)
+    if args.mlp_class:
+        mlp_classifier(X_train, X_test, y_train, y_test)
+    if args.mlp_reg:
+        mlp_regressor(X_train, X_test, y_train, y_test)
+    if args.umap_class:
+        umap_func(X_train, X_test, y_train, y_test)
+    if args.sgd_reg:
+        sgd_reg_func(X_train, X_test, y_train, y_test)
 
 
