@@ -45,7 +45,7 @@ def umap_func(X_train, X_test, y_train, y_test):
     mapper = umap.UMAP().fit(np.array(x_train_clusters).reshape(int(num_clusters*samples_use), num_features))
 
     umap.plot.points(mapper, labels=np.array(y_train_clusters).flatten(), theme='fire')
-    umap.plot.plt.show()
+    umap.plot.plt.imsave("umap.png")
 
 
 def sgd_reg_func(X_train, X_test, y_train, y_test):
