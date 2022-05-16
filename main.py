@@ -188,9 +188,9 @@ if __name__ == "__main__":
 
     # Call the different ML / data analysis functions
 
-    tsne_func(X_train, X_test, y_train, y_test)
+    # tsne_func(X_train, X_test, y_train, y_test)
     # svm_func(X_train, X_test, y_train, y_test)
-    # mlp_classifier(X_train, X_test, y_train, y_test)
+    mlp_classifier(X_train, X_test, y_train, y_test)
     # mlp_regressor(X_train, X_test, y_train, y_test)
     # umap_func(X_train, X_test, y_train, y_test)
     # sgd_reg_func(X_train, X_test, y_train, y_test)
