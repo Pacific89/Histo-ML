@@ -72,7 +72,7 @@ def tsne_func(X_train, X_test, y_train, y_test):
     X_embedded = tsne.fit_transform(X_train)
 
     sns.scatterplot(X_embedded[:,0], X_embedded[:,1], hue=y_train, legend='full', palette=palette)
-    plt.show()
+    plt.imsave("tsne.png")
 
 def load_kmeans():
     model = pickle.load(open("/media/user/easystore/ContrastiveClusterResults/kmeans_tests/kmeans_200.pkl", "rb"))
@@ -188,11 +188,11 @@ if __name__ == "__main__":
 
     # Call the different ML / data analysis functions
 
-    # tsne_func(X_train, X_test, y_train, y_test)
+    tsne_func(X_train, X_test, y_train, y_test)
     # svm_func(X_train, X_test, y_train, y_test)
     # mlp_classifier(X_train, X_test, y_train, y_test)
     # mlp_regressor(X_train, X_test, y_train, y_test)
-    umap_func(X_train, X_test, y_train, y_test)
+    # umap_func(X_train, X_test, y_train, y_test)
     # sgd_reg_func(X_train, X_test, y_train, y_test)
 
 
