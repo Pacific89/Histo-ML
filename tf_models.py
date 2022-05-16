@@ -4,7 +4,7 @@ from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Activation
 
-def _mlp_regressor(X, y):
+def _mlp_regressor(X, y, epochs=500, batch_size=64):
 
     model = Sequential([
     Flatten(input_shape=(512,)),
@@ -15,7 +15,7 @@ def _mlp_regressor(X, y):
     ])
     model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
     model.summary()
-    model.fit(X, y, epochs=10, batch_size=32)
+    model.fit(X, y, epochs=epochs, batch_size=batch_size)
 
 
 def _mlp_classifier(X, y):
