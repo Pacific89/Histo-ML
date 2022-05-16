@@ -182,7 +182,7 @@ if __name__ == "__main__":
 
 
     # split train/test sets
-    # X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets, test_size=0.2, random_state=42)
 
 
 
@@ -192,7 +192,7 @@ if __name__ == "__main__":
     # svm_func(X_train, X_test, y_train, y_test)
     # mlp_classifier(X_train, X_test, y_train, y_test)
     # mlp_regressor(X_train, X_test, y_train, y_test)
-    # umap_func(X_train, X_test, y_train, y_test)
+    umap_func(X_train, X_test, y_train, y_test)
     # sgd_reg_func(X_train, X_test, y_train, y_test)
 
 
