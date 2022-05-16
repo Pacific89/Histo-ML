@@ -121,7 +121,8 @@ def get_combined_data(args):
 def get_combined_data_subset(args):
 
     combined_features = pd.DataFrame()
-    combined_targets = pd.DataFrame()
+    combined_targets_class = pd.DataFrame()
+    combined_targets_reg = pd.DataFrame()
 
     with pd.ExcelFile(args.xlsx_path) as xlsx:
         # xlsx = pd.ExcelFile(args.csv)
@@ -142,20 +143,23 @@ def get_combined_data_subset(args):
                                 with h5py.File(filepath, "r") as f:
                                     features_ = pd.DataFrame(np.array(f["features"]))
 
-                                    targets_ = [row["HRD-Status"]]*len(features_)
-                                    # targets_ = [row["GIS-Wert"]]*len(features_)
+                                    targets_class = [row["HRD-Status"]]*len(features_)
+                                    targets_reg = [row["GIS-Wert"]]*len(features_)
 
                                     use_samples = int(len(features_)/1)
                                     features = features_[:use_samples]
-                                    targets = pd.DataFrame(targets_[:use_samples])
+                                    targets_class = pd.DataFrame(targets_class[:use_samples])
+                                    targets_reg = pd.DataFrame(targets_reg[:use_samples])
 
                                     combined_features = pd.concat([combined_features, features], ignore_index=True)
-                                    combined_targets = pd.concat([combined_targets, targets], ignore_index=True)
+                                    combined_targets_class = pd.concat([combined_targets_class, targets_class], ignore_index=True)
+                                    combined_targets_reg = pd.concat([combined_targets_reg, targets_reg], ignore_index=True)
 
 
-    combined_targets = combined_targets.values.flatten()
+    combined_targets_class = combined_targets_class.values.flatten()
+    combined_targets_reg = combined_targets_reg.values.flatten()
 
-    return combined_features, combined_targets
+    return combined_features, combined_targets_class, combined_targets_reg
 
 if __name__ == "__main__":
     """main function that handles input arguments, reads h5 feature frame files (from the results paths of the xlsx file)
@@ -182,30 +186,36 @@ if __name__ == "__main__":
 
 
     # get all features and corresponding targets
-    combined_features, combined_targets = get_combined_data_subset(args)
-                            
-    # print(combined_features)
-    print(combined_targets)
+    combined_features, combined_targets_class, combined_targets_reg = get_combined_data_subset(args)
 
-
-    # split train/test sets
-    X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets, test_size=0.2, random_state=42)
-
-
+    print(combined_targets_reg)
+    print(combined_targets_class)
 
     # Call the different ML / data analysis functions
 
     if args.tsne_class:
+        # split train/test sets
+        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_class, test_size=0.2, random_state=42)
         tsne_func(X_train, X_test, y_train, y_test)
+
     if args.svm_class:
+        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_class, test_size=0.2, random_state=42)
         svm_func(X_train, X_test, y_train, y_test)
+
     if args.mlp_class:
+        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_class, test_size=0.2, random_state=42)
         mlp_classifier(X_train, X_test, y_train, y_test)
+
     if args.mlp_reg:
+        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_reg, test_size=0.2, random_state=42)
         mlp_regressor(X_train, X_test, y_train, y_test)
+
     if args.umap_class:
+        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_class, test_size=0.2, random_state=42)
         umap_func(X_train, X_test, y_train, y_test)
+
     if args.sgd_reg:
+        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_reg, test_size=0.2, random_state=42)
         sgd_reg_func(X_train, X_test, y_train, y_test)
 
 
