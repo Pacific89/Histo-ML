@@ -72,7 +72,7 @@ def tsne_func(X_train, X_test, y_train, y_test):
     X_embedded = tsne.fit_transform(X_train)
 
     sns.scatterplot(X_embedded[:,0], X_embedded[:,1], hue=y_train, legend='full', palette=palette)
-    plt.imsave("tsne.png")
+    plt.savefig("tsne.pdf")
 
 def load_kmeans():
     model = pickle.load(open("/media/user/easystore/ContrastiveClusterResults/kmeans_tests/kmeans_200.pkl", "rb"))
