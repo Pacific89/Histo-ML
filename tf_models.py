@@ -23,9 +23,12 @@ def _mlp_classifier(X, y):
 
     model = Sequential([
     Flatten(input_shape=(512,)),
-    Dense(100, activation='relu'),
-    Dense(50, activation='relu'),  
-    Dense(10, activation='relu'), 
+    Dense(256, activation='relu'),
+    Dense(128, activation='relu'),  
+    Dense(64, activation='relu'),
+    Dense(32, activation='relu'), 
+    Dense(16, activation='relu'), 
+    Dense(8, activation='relu'),
     Dense(num_targets, activation='softmax'), 
     ])
 
