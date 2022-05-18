@@ -186,7 +186,7 @@ def check_datasets(args):
             if f.endswith("xlsx"):
                 found_excel_filenames = pd.read_excel(os.path.join(root, f))
                 print("Excel found!")
-                print("Same files: ", sum(input_filenames["filename"] == found_excel_filenames["filename"]))
+                print("Same files: ", sum(input_filenames == found_excel_filenames["filename"]))
 
 if __name__ == "__main__":
     """main function that handles input arguments, reads h5 feature frame files (from the results paths of the xlsx file)
