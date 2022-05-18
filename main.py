@@ -194,7 +194,7 @@ def check_datasets(args):
 
                 if same_files == len(input_filenames):
                     dataset_path = root
-                    same_file_found = True
+                    dataset_found = True
 
     return dataset_found, dataset_path
 
