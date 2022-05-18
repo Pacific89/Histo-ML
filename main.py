@@ -210,8 +210,8 @@ if __name__ == "__main__":
 
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('-x', '--xlsx_path', required=False, default="/media/user/easystore/HRDDATA/hrd_subset.xlsx")
-    parser.add_argument('-p', '--parent_path', required=False, default="/media/user/easystore/HRDDATA")
+    parser.add_argument('-x', '--xlsx_path', required=False, default="")
+    parser.add_argument('-p', '--parent_path', required=False, default="")
     parser.add_argument('-mr', '--mlp_reg', required=False, default=False)
     parser.add_argument('-mc', '--mlp_class', required=False, default=False)
     parser.add_argument('-svm', '--svm_class', required=False, default=False)
@@ -222,8 +222,9 @@ if __name__ == "__main__":
     parser.add_argument('-dp', '--data_path', required=False, default="")
 
     args = parser.parse_args()
-
-    dataset_found, dataset_path = check_datasets(args)
+    data_path = ""
+    if len(args.xlsx_path) > 0
+        dataset_found, data_path = check_datasets(args)
 
     if dataset_found:
         print("Found Dataset at: ", dataset_path)
@@ -234,11 +235,15 @@ if __name__ == "__main__":
         combined_features, combined_targets_class, combined_targets_reg = get_combined_data_subset(args)
 
     if os.path.isdir(args.data_path):
+        data_path = args.data_path
+
+
+    if len(data_path) > 0 and os.path.isdir(data_path):
         features_path = "combined_features.h5"
         targets_class_path = "combined_hrd_targets.h5"
         targets_reg_path = "combined_gis_targets.h5"
 
-        datapath = os.path.abspath(args.data_path)
+        datapath = os.path.abspath(data_path)
         combined_features = pd.read_hdf(os.path.join(datapath, features_path)).values.flatten()
         combined_targets_class = pd.read_hdf(os.path.join(datapath, targets_class_path)).values.flatten()
         combined_targets_reg = pd.read_hdf(os.path.join(datapath, targets_reg_path)).values.flatten()
