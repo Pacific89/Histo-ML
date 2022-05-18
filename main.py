@@ -121,9 +121,11 @@ def get_combined_data(args):
 
 def save_h5_files(combined_features, combined_targets_class, combined_targets_reg):
 
-    combined_features.to_hdf("combined_features.h5", "simclr_features")
-    combined_targets_class.to_hdf("combined_hrd_targets.h5", "hrd_class_targets")
-    combined_targets_reg.to_hdf("combined_gis_targets.h5", "gis_score_targets")
+    dataset_path = "data/dataset_{0}".format(len(os.listdir("data")))
+    os.makedirs(dataset_path)
+    combined_features.to_hdf(os.path.join(dataset_path, "combined_features.h5"), "simclr_features")
+    combined_targets_class.to_hdf(os.path.join(dataset_path, "combined_hrd_targets.h5"), "hrd_class_targets")
+    combined_targets_reg.to_hdf(os.path.join(dataset_path, "combined_gis_targets.h5"), "gis_score_targets")
 
 
 def get_combined_data_subset(args):
