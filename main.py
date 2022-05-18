@@ -13,6 +13,7 @@ from sklearn.linear_model import SGDRegressor
 import umap
 import umap.plot
 import pickle
+import shutil
 
 from sklearn.model_selection import train_test_split
 
