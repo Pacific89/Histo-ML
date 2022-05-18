@@ -193,12 +193,22 @@ if __name__ == "__main__":
     parser.add_argument('-uc', '--umap_class', required=False, default=False)
     parser.add_argument('-sr', '--sgd_reg', required=False, default=False)
     parser.add_argument('-s', '--save_h5', required=False, default=False)
+    parser.add_argument('-dp', '--data_path', required=False, default="")
 
     args = parser.parse_args()
 
 
     # get all features and corresponding targets
-    combined_features, combined_targets_class, combined_targets_reg = get_combined_data_subset(args)
+    if args.save_h5:
+        combined_features, combined_targets_class, combined_targets_reg = get_combined_data_subset(args)
+    if os.path.isdir(args.data_path):
+        features_path = "combined_features.h5")
+        targets_class_path = "combined_hrd_targets.h5"
+        targets_reg_path = "combined_gis_targets.h5"
+
+        combined_features = pd.read_hdf(features_path)
+        combined_targets_class = pd.read_hdf(targets_class_path)
+        combined_targets_reg = pd.read_hdf(targets_reg_path)
 
     print(combined_targets_reg)
     print(combined_targets_class)
