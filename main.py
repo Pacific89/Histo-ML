@@ -192,7 +192,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--tsne_class', required=False, default=False)
     parser.add_argument('-uc', '--umap_class', required=False, default=False)
     parser.add_argument('-sr', '--sgd_reg', required=False, default=False)
-    parser.add_argument('-s' '--save_h5', required=False, default=False)
+    parser.add_argument('-s', '--save_h5', required=False, default=False)
 
     args = parser.parse_args()
 
