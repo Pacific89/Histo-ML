@@ -178,13 +178,15 @@ def get_combined_data_subset(args):
     return combined_features, combined_targets_class, combined_targets_reg
 
 
-def check_excel(args):
+def check_datasets(args):
 
+    input_filenames = pd.read_excel(args.xlsx_path)["filename"]
     for root, dirs, files in os.walk("data"):
         for f in files:
             if f.endswith("xlsx"):
-                file_path = os.path.join(root, f)
-                print("Excel found: ", file_path)
+                found_excel_filenames = pd.read_excel(os.path.join(root, f))
+                print("Excel found!")
+                print("Same files: ", sum(input_filenames["filename"] == found_excel_filenames["filename"]))
 
 if __name__ == "__main__":
     """main function that handles input arguments, reads h5 feature frame files (from the results paths of the xlsx file)
@@ -211,7 +213,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    check_excel(args)
+    dataset_found = check_datasets(args)
 
     # get all features and corresponding targets
     if args.save_h5:
