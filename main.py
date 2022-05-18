@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     data_path = ""
-    if len(args.xlsx_path) > 0
+    if len(args.xlsx_path) > 0:
         dataset_found, data_path = check_datasets(args)
 
     if dataset_found:
