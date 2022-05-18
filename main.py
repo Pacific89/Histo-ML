@@ -118,6 +118,14 @@ def get_combined_data(args):
 
     return combined_features, combined_targets
 
+
+def save_h5_files(combined_features, combined_targets_class, combined_targets_reg):
+
+    combined_features.to_hdf("combined_features.h5", "simclr_features")
+    combined_targets_class.to_hdf("combined_targets.h5", "hrd_class_targets")
+    combined_targets_reg.to_hdf("combined_targets.h5", "gis_score_targets")
+
+
 def get_combined_data_subset(args):
 
     combined_features = pd.DataFrame()
@@ -159,6 +167,9 @@ def get_combined_data_subset(args):
     combined_targets_class = combined_targets_class.values.flatten()
     combined_targets_reg = combined_targets_reg.values.flatten()
 
+    if args.save_h5:
+        save_h5_files(combined_features, combined_targets_class, combined_targets_reg)
+
     return combined_features, combined_targets_class, combined_targets_reg
 
 if __name__ == "__main__":
@@ -181,6 +192,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--tsne_class', required=False, default=False)
     parser.add_argument('-uc', '--umap_class', required=False, default=False)
     parser.add_argument('-sr', '--sgd_reg', required=False, default=False)
+    parser.add_argument('-s' '--save_h5', required=False, default=False)
 
     args = parser.parse_args()
 
