@@ -164,11 +164,11 @@ def get_combined_data_subset(args):
                                     combined_targets_reg = pd.concat([combined_targets_reg, targets_reg], ignore_index=True)
 
 
-    combined_targets_class = combined_targets_class.values.flatten()
-    combined_targets_reg = combined_targets_reg.values.flatten()
-
     if args.save_h5:
         save_h5_files(combined_features, combined_targets_class, combined_targets_reg)
+
+    combined_targets_class = combined_targets_class.values.flatten()
+    combined_targets_reg = combined_targets_reg.values.flatten()
 
     return combined_features, combined_targets_class, combined_targets_reg
 
