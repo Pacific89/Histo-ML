@@ -206,9 +206,10 @@ if __name__ == "__main__":
         targets_class_path = "combined_hrd_targets.h5"
         targets_reg_path = "combined_gis_targets.h5"
 
-        combined_features = pd.read_hdf(features_path)
-        combined_targets_class = pd.read_hdf(targets_class_path)
-        combined_targets_reg = pd.read_hdf(targets_reg_path)
+        datapath = os.path.abspath(args.data_path)
+        combined_features = pd.read_hdf(os.path.join(datapath, features_path))
+        combined_targets_class = pd.read_hdf(os.path.join(datapath, targets_class_path))
+        combined_targets_reg = pd.read_hdf(os.path.join(datapath, targets_reg_path))
 
     print(combined_targets_reg)
     print(combined_targets_class)
