@@ -179,7 +179,7 @@ def check_excel(args):
 
     for root, dirs, files in os.walk("data"):
         for f in files:
-            if f.endswith("xlsx")
+            if f.endswith("xlsx"):
                 file_path = os.path.join(root, f)
                 print("Excel found: ", file_path)
 
