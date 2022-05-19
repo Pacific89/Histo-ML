@@ -195,12 +195,13 @@ def check_datasets(args):
             if f.endswith("xlsx"):
                 found_excel_filenames = pd.read_excel(os.path.join(root, f))
                 print("Excel found!")
-                same_files = sum(input_filenames == found_excel_filenames["filename"])
-                print("Same files: ", same_files)
+                if len(input_filenames) == len(found_excel_filenames["filename"]):
+                    same_files = sum(input_filenames == found_excel_filenames["filename"])
+                    print("Same files: ", same_files)
 
-                if same_files == len(input_filenames):
-                    dataset_path = root
-                    dataset_found = True
+                    if same_files == len(input_filenames):
+                        dataset_path = root
+                        dataset_found = True
 
     return dataset_found, dataset_path
 
