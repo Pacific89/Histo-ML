@@ -36,7 +36,7 @@ class ML():
 
         mapper = umap.UMAP().fit(X_train, y=y_train)
 
-        umap.plot.points(mapper, labels=y_train.values, theme='fire')
+        umap.plot.points(mapper, labels=y_train, theme='fire')
         umap.plot.plt.imsave(os.path.join(exp_folder, "umap.png"))
 
 
