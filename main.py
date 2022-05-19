@@ -67,6 +67,9 @@ def svm_func(X_train, X_test, y_train, y_test):
     clf = make_pipeline(StandardScaler(), svm.SVC(gamma='auto'))
     clf.fit(X_train, y_train)
 
+    scores = clf.score(X=X_test, y=y_test)
+    print("SVM Score: ", scores)
+
 def tsne_func(X_train, X_test, y_train, y_test):
     palette = sns.color_palette("bright", len(set(y_train)))
     tsne = TSNE()
