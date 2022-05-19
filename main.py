@@ -227,8 +227,8 @@ if __name__ == "__main__":
         dataset_found, data_path = check_datasets(args)
 
         if dataset_found:
-            print("Found Dataset at: ", dataset_path)
-            print("Files: ", os.listdir(dataset_path))
+            print("Found Dataset at: ", data_path)
+            print("Files: ", os.listdir(data_path))
 
     # get all features and corresponding targets
     if args.save_h5:
