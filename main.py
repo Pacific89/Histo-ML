@@ -66,7 +66,7 @@ class ML():
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
         # clf = make_pipeline(StandardScaler(), svm.SVC(gamma='auto'))
-        clf = BaggingClassifier(base_estimator=svm.SVC(gamma='auto'), n_estimators=20, random_state=42).fit(X_train, y_train)
+        clf = BaggingClassifier(base_estimator=svm.SVC(gamma='auto'), n_jobs=20, n_estimators=20, random_state=42).fit(X_train, y_train)
         # clf.fit(X_train, y_train)
 
         scores = clf.score(X=X_test, y=y_test)
