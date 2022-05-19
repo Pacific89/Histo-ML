@@ -34,7 +34,7 @@ class ML():
         os.makedirs(exp_folder)
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
-        mapper = umap.UMAP().fit(X_train, y=y_train)
+        mapper = umap.UMAP().fit(X_train.values, y=y_train.values)
 
         umap.plot.points(mapper, labels=y_train, theme='fire')
         umap.plot.plt.imsave(os.path.join(exp_folder, "umap.png"))
