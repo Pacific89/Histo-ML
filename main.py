@@ -231,7 +231,7 @@ if __name__ == "__main__":
             print("Files: ", os.listdir(data_path))
 
     # get all features and corresponding targets
-    if args.save_h5:
+    if args.save_h5 and not dataset_found:
         combined_features, combined_targets_class, combined_targets_reg = get_combined_data_subset(args)
 
     if os.path.isdir(args.data_path):
