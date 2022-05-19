@@ -28,7 +28,7 @@ class ML():
         self.combined_targets_reg = combined_targets_reg
         self.exp_base_path = os.path.abspath(args.exp_base_path)
 
-    def umap_func():
+    def umap_func(self):
         exp_folder = os.path.join(self.exp_base_path, "exp_" + shortuuid.uuid()[:8])
         os.makedirs(exp_folder)
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
@@ -38,7 +38,7 @@ class ML():
         umap.plot.plt.imsave(os.path.join(exp_folder, "umap.png"))
 
 
-    def sgd_reg_func():
+    def sgd_reg_func(self):
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_reg, test_size=0.2, random_state=42)
 
         reg = make_pipeline(StandardScaler(), SGDRegressor(max_iter=1000, tol=1e-3))
@@ -46,21 +46,21 @@ class ML():
 
         print(reg.score(X_test, y_test))
 
-    def mlp_regressor(X_train, X_test, y_train, y_test):
+    def mlp_regressor(self):
         from tf_models import _mlp_regressor
 
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_reg, test_size=0.2, random_state=42)
 
         _mlp_regressor(X_train, y_train)
 
-    def mlp_classifier():
+    def mlp_classifier(self):
         from tf_models import _mlp_classifier
 
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
         _mlp_classifier(X_train, y_train)
 
-    def svm_func():
+    def svm_func(self):
 
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
@@ -70,7 +70,7 @@ class ML():
         scores = clf.score(X=X_test, y=y_test)
         print("SVM Score: ", scores)
 
-    def tsne_func():
+    def tsne_func(self):
 
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
@@ -81,7 +81,7 @@ class ML():
         sns.scatterplot(X_embedded[:,0], X_embedded[:,1], hue=y_train, legend='full', palette=palette)
         plt.savefig("tsne.pdf")
 
-    def load_kmeans():
+    def load_kmeans(self):
         model = pickle.load(open("/media/user/easystore/ContrastiveClusterResults/kmeans_tests/kmeans_200.pkl", "rb"))
         return model
 
