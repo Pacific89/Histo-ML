@@ -175,8 +175,7 @@ def get_combined_data_subset(args):
                                     combined_targets_reg = pd.concat([combined_targets_reg, targets_reg], ignore_index=True)
 
 
-    if args.save_h5:
-        save_h5_files(args, combined_features, combined_targets_class, combined_targets_reg)
+    save_h5_files(args, combined_features, combined_targets_class, combined_targets_reg)
 
     combined_targets_class = combined_targets_class.values.flatten()
     combined_targets_reg = combined_targets_reg.values.flatten()
@@ -225,7 +224,6 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--tsne_class', required=False, default=False)
     parser.add_argument('-uc', '--umap_class', required=False, default=False)
     parser.add_argument('-sr', '--sgd_reg', required=False, default=False)
-    parser.add_argument('-s', '--save_h5', required=False, default=False)
     parser.add_argument('-dp', '--data_path', required=False, default="")
     parser.add_argument('-ep', '--exp_base_path', required=False, default="results")
 
@@ -238,9 +236,12 @@ if __name__ == "__main__":
             print("Found Dataset at: ", data_path)
             print("Files: ", os.listdir(data_path))
 
+        else:
+            combined_features, combined_targets_class, combined_targets_reg = get_combined_data_subset(args)
+
     # get all features and corresponding targets
-    if args.save_h5 and not dataset_found:
-        combined_features, combined_targets_class, combined_targets_reg = get_combined_data_subset(args)
+    # if args.save_h5 or not dataset_found:
+    #     combined_features, combined_targets_class, combined_targets_reg = get_combined_data_subset(args)
 
     if os.path.isdir(args.data_path):
         data_path = args.data_path
