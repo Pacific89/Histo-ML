@@ -248,8 +248,9 @@ if __name__ == "__main__":
         combined_targets_class = pd.read_hdf(os.path.join(datapath, targets_class_path), key="hrd_class_targets").values.flatten()
         combined_targets_reg = pd.read_hdf(os.path.join(datapath, targets_reg_path), "gis_score_targets").values.flatten()
 
-    print(combined_targets_reg)
-    print(combined_targets_class)
+    # print(combined_targets_reg)
+    print(combined_targets_class.shape)
+    print(combined_features.shape)
 
     # Call the different ML / data analysis functions
 
