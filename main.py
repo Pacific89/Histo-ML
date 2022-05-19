@@ -245,8 +245,8 @@ if __name__ == "__main__":
 
         datapath = os.path.abspath(data_path)
         combined_features = pd.read_hdf(os.path.join(datapath, features_path), key="simclr_features")
-        combined_targets_class = pd.read_hdf(os.path.join(datapath, targets_class_path), key="hrd_class_targets").values.flatten()
-        combined_targets_reg = pd.read_hdf(os.path.join(datapath, targets_reg_path), key="gis_score_targets").values.flatten()
+        combined_targets_class = pd.read_hdf(os.path.join(datapath, targets_class_path), key="hrd_class_targets")
+        combined_targets_reg = pd.read_hdf(os.path.join(datapath, targets_reg_path), key="gis_score_targets")
 
     # print(combined_targets_reg)
     print(combined_targets_class)
