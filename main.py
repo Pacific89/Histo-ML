@@ -14,73 +14,76 @@ import umap
 import umap.plot
 import pickle
 import shutil
+import shortuuid
 
 from sklearn.model_selection import train_test_split
 
 
-def umap_func(X_train, X_test, y_train, y_test):
+class ML():
+    
+    def __init__(self, args, combined_features, combined_targets_class, combined_targets_reg):
 
-    kmeans = load_kmeans()
-    X_train = X_train.values.astype(float)
-    y_pred = kmeans.predict(X_train)
-    samples_use = 5
-    num_clusters = 10
-    num_features = X_train.shape[1]
+        self.combined_features = combined_features
+        self.combined_targets_class = combined_targets_class
+        self.combined_targets_reg = combined_targets_reg
+        self.exp_base_path = os.path.abspath(args.exp_base_path)
 
-    x_train_clusters = [] # np.zeros((int(samples_use*num_clusters) , num_features))
-    y_train_clusters = [] # np.zeros((int(samples_use*num_clusters), 1))
-    for num, centroid in enumerate(kmeans.cluster_centers_[:num_clusters]):
-        label = kmeans.labels_[num]
-        distances = np.abs(np.sum((centroid - X_train), axis=1))
-        # print(distances.shape)
-        indices = np.argsort(distances)
-        # print(indices)
-        ind_use = indices[:samples_use]
+    def umap_func():
+        exp_folder = os.path.join(self.exp_base_path, os."exp_" + shortuuid.uuid()[:8])
+        os.makedirs(exp_folder)
+        X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
+        mapper = umap.UMAP().fit(X_train, y=y_train)
 
-        # x_train_clusters[num*samples_use : (num+1)*samples_use] = X_train[ind_use]
-        # y_train_clusters[num*samples_use : (num+1)*samples_use] = np.array([label] * samples_use).reshape(samples_use,1)
-        x_train_clusters.append(X_train[ind_use])
-        y_train_clusters.append(kmeans.labels_[ind_use])
-        print(label)
-
-    mapper = umap.UMAP().fit(np.array(x_train_clusters).reshape(int(num_clusters*samples_use), num_features))
-
-    umap.plot.points(mapper, labels=np.array(y_train_clusters).flatten(), theme='fire')
-    umap.plot.plt.imsave("umap.png")
+        umap.plot.points(mapper, labels=y_train, theme='fire')
+        umap.plot.plt.imsave(os.path.join(exp_folder, "umap.png"))
 
 
-def sgd_reg_func(X_train, X_test, y_train, y_test):
-    reg = make_pipeline(StandardScaler(), SGDRegressor(max_iter=1000, tol=1e-3))
-    reg.fit(X_train, y_train)
+    def sgd_reg_func():
+        X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_reg, test_size=0.2, random_state=42)
 
-    print(reg.score(X_test, y_test))
+        reg = make_pipeline(StandardScaler(), SGDRegressor(max_iter=1000, tol=1e-3))
+        reg.fit(X_train, y_train)
 
-def mlp_regressor(X_train, X_test, y_train, y_test):
-    from tf_models import _mlp_regressor
-    _mlp_regressor(X_train, y_train)
+        print(reg.score(X_test, y_test))
 
-def mlp_classifier(X_train, X_test, y_train, y_test):
-    from tf_models import _mlp_classifier
-    _mlp_classifier(X_train, y_train)
+    def mlp_regressor(X_train, X_test, y_train, y_test):
+        from tf_models import _mlp_regressor
 
-def svm_func(X_train, X_test, y_train, y_test):
-    clf = make_pipeline(StandardScaler(), svm.SVC(gamma='auto'))
-    clf.fit(X_train, y_train)
+        X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_reg, test_size=0.2, random_state=42)
 
-    scores = clf.score(X=X_test, y=y_test)
-    print("SVM Score: ", scores)
+        _mlp_regressor(X_train, y_train)
 
-def tsne_func(X_train, X_test, y_train, y_test):
-    palette = sns.color_palette("bright", len(set(y_train)))
-    tsne = TSNE()
-    X_embedded = tsne.fit_transform(X_train)
+    def mlp_classifier():
+        from tf_models import _mlp_classifier
 
-    sns.scatterplot(X_embedded[:,0], X_embedded[:,1], hue=y_train, legend='full', palette=palette)
-    plt.savefig("tsne.pdf")
+        X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
-def load_kmeans():
-    model = pickle.load(open("/media/user/easystore/ContrastiveClusterResults/kmeans_tests/kmeans_200.pkl", "rb"))
-    return model
+        _mlp_classifier(X_train, y_train)
+
+    def svm_func():
+
+        X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
+
+        clf = make_pipeline(StandardScaler(), svm.SVC(gamma='auto'))
+        clf.fit(X_train, y_train)
+
+        scores = clf.score(X=X_test, y=y_test)
+        print("SVM Score: ", scores)
+
+    def tsne_func():
+
+        X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
+
+        palette = sns.color_palette("bright", len(set(y_train)))
+        tsne = TSNE()
+        X_embedded = tsne.fit_transform(X_train)
+
+        sns.scatterplot(X_embedded[:,0], X_embedded[:,1], hue=y_train, legend='full', palette=palette)
+        plt.savefig("tsne.pdf")
+
+    def load_kmeans():
+        model = pickle.load(open("/media/user/easystore/ContrastiveClusterResults/kmeans_tests/kmeans_200.pkl", "rb"))
+        return model
 
 
 
@@ -223,6 +226,7 @@ if __name__ == "__main__":
     parser.add_argument('-sr', '--sgd_reg', required=False, default=False)
     parser.add_argument('-s', '--save_h5', required=False, default=False)
     parser.add_argument('-dp', '--data_path', required=False, default="")
+    parser.add_argument('-ep', '--exp_base_path', required=False, default="results")
 
     args = parser.parse_args()
     data_path = ""
@@ -256,30 +260,24 @@ if __name__ == "__main__":
     print(combined_features)
 
     # Call the different ML / data analysis functions
-
+    ml = ML(args, combined_features, combined_targets_class, combined_targets_reg)
     if args.tsne_class:
         # split train/test sets
-        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_class, test_size=0.2, random_state=42)
-        tsne_func(X_train, X_test, y_train, y_test)
+        ml.tsne_func()
 
     if args.svm_class:
-        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_class, test_size=0.2, random_state=42)
-        svm_func(X_train, X_test, y_train, y_test)
+        ml.svm_func()
 
     if args.mlp_class:
-        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_class, test_size=0.2, random_state=42)
-        mlp_classifier(X_train, X_test, y_train, y_test)
+        ml.mlp_classifier()
 
     if args.mlp_reg:
-        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_reg, test_size=0.2, random_state=42)
-        mlp_regressor(X_train, X_test, y_train, y_test)
+        ml.mlp_regressor()
 
     if args.umap_class:
-        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_class, test_size=0.2, random_state=42)
-        umap_func(X_train, X_test, y_train, y_test)
+        ml.umap_func()
 
     if args.sgd_reg:
-        X_train, X_test, y_train, y_test = train_test_split(combined_features, combined_targets_reg, test_size=0.2, random_state=42)
-        sgd_reg_func(X_train, X_test, y_train, y_test)
+        ml.sgd_reg_func()
 
 
