@@ -29,7 +29,7 @@ class ML():
         self.exp_base_path = os.path.abspath(args.exp_base_path)
 
     def umap_func():
-        exp_folder = os.path.join(self.exp_base_path, os."exp_" + shortuuid.uuid()[:8])
+        exp_folder = os.path.join(self.exp_base_path, "exp_" + shortuuid.uuid()[:8])
         os.makedirs(exp_folder)
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
         mapper = umap.UMAP().fit(X_train, y=y_train)
