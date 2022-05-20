@@ -28,9 +28,6 @@ def _mlp_regressor(X, y, epochs=500, batch_size=200, validation_split=0.2):
 
 
 def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2):
-    num_targets = len(set(y))
-    print("Num targets: ", y)
-    print(set(y))
 
     model = Sequential([
     Flatten(input_shape=(512,)),
@@ -41,11 +38,11 @@ def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2):
     Dense(32, activation='relu'), 
     Dense(16, activation='relu'),
     Dense(8, activation='relu'),
-    Dense(num_targets, activation='softmax'), 
+    Dense(2, activation='softmax'), 
     ])
 
     model.compile(optimizer='adam',
-              loss='binary_crossentropy',
+              loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
     model.summary()
