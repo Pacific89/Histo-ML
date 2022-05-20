@@ -11,6 +11,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.ensemble import BaggingClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import SGDRegressor
+from sklearn.naive_bayes import GaussianNB
 import umap
 import umap.plot
 import pickle
@@ -34,7 +35,7 @@ class ML():
         os.makedirs(exp_folder)
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
-        mapper = umap.UMAP().fit(X_train.values)
+        mapper = umap.UMAP().fit(X_train)
 
         umap.plot.points(mapper, labels=y_train, theme='fire')
         umap.plot.plt.imsave(os.path.join(exp_folder, "umap.png"))
@@ -63,7 +64,6 @@ class ML():
         _mlp_classifier(X_train, y_train)
 
     def svm_func(self):
-
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
         # clf = make_pipeline(StandardScaler(), svm.SVC(gamma='auto'))
@@ -74,7 +74,6 @@ class ML():
         print("SVM Score: ", scores)
 
     def tsne_func(self):
-
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
         palette = sns.color_palette("bright", len(set(y_train)))
@@ -83,6 +82,15 @@ class ML():
 
         sns.scatterplot(X_embedded[:,0], X_embedded[:,1], hue=y_train, legend='full', palette=palette)
         plt.savefig("tsne.pdf")
+
+    def naive_bayes_estimator(self)
+        X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
+
+        gnb = GaussianNB()
+        gnb_classifier = gnb.fit(X_train, y_train)
+        score = gnb_classifier.score(X_test, y_test)
+        print("Score: ", score)
+
 
     def load_kmeans(self):
         model = pickle.load(open("/media/user/easystore/ContrastiveClusterResults/kmeans_tests/kmeans_200.pkl", "rb"))
@@ -227,6 +235,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--tsne_class', required=False, default=False)
     parser.add_argument('-uc', '--umap_class', required=False, default=False)
     parser.add_argument('-sr', '--sgd_reg', required=False, default=False)
+    parser.add_argument('-nb', '--naive_bayes', required=False, default=False)
     parser.add_argument('-dp', '--data_path', required=False, default="")
     parser.add_argument('-ep', '--exp_base_path', required=False, default="results")
 
@@ -267,7 +276,6 @@ if __name__ == "__main__":
     # Call the different ML / data analysis functions
     ml = ML(args, combined_features, combined_targets_class, combined_targets_reg)
     if args.tsne_class:
-        # split train/test sets
         ml.tsne_func()
 
     if args.svm_class:
@@ -284,5 +292,8 @@ if __name__ == "__main__":
 
     if args.sgd_reg:
         ml.sgd_reg_func()
+        
+    if args.naive_bayes:
+        ml.naive_bayes_estimator()
 
 
