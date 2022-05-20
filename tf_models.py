@@ -28,7 +28,7 @@ def _mlp_regressor(X, y, epochs=500, batch_size=200, validation_split=0.2):
 
 
 def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2):
-    num_targets = len(set(list(y.values)))
+    num_targets = len(set(y))
     print("Num targets: ", y)
     print(set(y))
 
