@@ -63,6 +63,15 @@ class ML():
 
         _mlp_classifier(X_train, y_train)
 
+    def check_models(self):
+        from tf_models import get_models, _mlp_classifier
+        models = get_models(4, 32, 192, 32, 512)
+        print("Checking {0} Models for Classification...".format(len(models)))
+        X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
+
+        for model in models:
+            _mlp_classifier(X_train, y_train, epochs=10, model=model)
+
     def svm_func(self):
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
@@ -236,6 +245,7 @@ if __name__ == "__main__":
     parser.add_argument('-uc', '--umap_class', required=False, default=False)
     parser.add_argument('-sr', '--sgd_reg', required=False, default=False)
     parser.add_argument('-nb', '--naive_bayes', required=False, default=False)
+    parser.add_argument('-cm', '--check_models', required=False, default=False)
     parser.add_argument('-dp', '--data_path', required=False, default="")
     parser.add_argument('-ep', '--exp_base_path', required=False, default="results")
 
@@ -295,5 +305,8 @@ if __name__ == "__main__":
 
     if args.naive_bayes:
         ml.naive_bayes_estimator()
+    
+    if args.check_models:
+        ml.check_models()
 
 
