@@ -34,8 +34,8 @@ def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2):
     Dense(512, activation='relu'),
     Dense(128, activation='relu'),
     Dense(64, activation='relu'), 
-    Dense(32, activation='relu'), 
-    Dense(8, activation='relu'),
+    Dense(64, activation='relu'), 
+    Dense(32, activation='relu'),
     Dense(2, activation='softmax'), 
     ])
 
