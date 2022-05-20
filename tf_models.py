@@ -45,7 +45,7 @@ def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2):
     ])
 
     model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
+              loss='binary_crossentropy',
               metrics=['accuracy'])
 
     model.summary()
