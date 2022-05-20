@@ -3,8 +3,16 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Activation
+import tensorboard
 
-def _mlp_regressor(X, y, epochs=500, batch_size=64):
+
+def get_tensorboard_callback(log_dir="./logs"):
+
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
+
+    return tensorboard_callback
+
+def _mlp_regressor(X, y, epochs=500, batch_size=200, validation_split=0.2):
 
     model = Sequential([
     Flatten(input_shape=(512,)),
@@ -15,20 +23,23 @@ def _mlp_regressor(X, y, epochs=500, batch_size=64):
     ])
     model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
     model.summary()
-    model.fit(X, y, epochs=epochs, batch_size=batch_size)
+
+    model.fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split,  callbacks=[get_tensorboard_callback()])
 
 
-def _mlp_classifier(X, y):
+def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2):
     num_targets = len(set(y))
 
     model = Sequential([
     Flatten(input_shape=(512,)),
-    Dense(256, activation='relu'),
-    Dense(128, activation='relu'),  
-    Dense(64, activation='relu'),
+    Dense(512, activation='relu'),
+    Dense(256, activation='relu'),  
+    Dense(128, activation='relu'),
+    Dense(64, activation='relu'), 
     Dense(32, activation='relu'), 
-    Dense(16, activation='relu'), 
+    Dense(16, activation='relu'),
     Dense(8, activation='relu'),
+    Dense(4, activation='relu'),
     Dense(num_targets, activation='softmax'), 
     ])
 
@@ -37,6 +48,4 @@ def _mlp_classifier(X, y):
               metrics=['accuracy'])
 
     model.summary()
-    model.fit(X, y, epochs=500, 
-          batch_size=200, 
-          validation_split=0.2)
+    model.fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split, callbacks=[get_tensorboard_callback()])
