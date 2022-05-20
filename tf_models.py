@@ -28,7 +28,7 @@ def _mlp_regressor(X, y, epochs=500, batch_size=200, validation_split=0.2):
 
 
 def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2):
-    num_targets = len(set(y))
+    num_targets = len(set(y.values))
 
     model = Sequential([
     Flatten(input_shape=(512,)),
