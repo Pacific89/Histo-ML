@@ -83,7 +83,7 @@ class ML():
         sns.scatterplot(X_embedded[:,0], X_embedded[:,1], hue=y_train, legend='full', palette=palette)
         plt.savefig("tsne.pdf")
 
-    def naive_bayes_estimator(self)
+    def naive_bayes_estimator(self):
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
         gnb = GaussianNB()
@@ -292,7 +292,7 @@ if __name__ == "__main__":
 
     if args.sgd_reg:
         ml.sgd_reg_func()
-        
+
     if args.naive_bayes:
         ml.naive_bayes_estimator()
 
