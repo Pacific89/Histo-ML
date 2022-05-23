@@ -22,6 +22,12 @@ from sklearn.model_selection import train_test_split
 
 
 class ML():
+    """Class for providing several machine learning functions that can be used
+    in a "standartized" way: the object is initialized with features and all targets (for classification and regression)
+    and the specific function load the values they need from the class attributes.
+
+    E.G.: X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class)
+    """
     
     def __init__(self, args, combined_features, combined_targets_class, combined_targets_reg):
 
@@ -31,6 +37,9 @@ class ML():
         self.exp_base_path = os.path.abspath(args.exp_base_path)
 
     def umap_func(self):
+        """UMAP function from package: https://umap-learn.readthedocs.io/en/latest/basic_usage.html
+        generates a dimensionality reduced output figure that show the projection of high dimensional features
+        """
         exp_folder = os.path.join(self.exp_base_path, "exp_" + shortuuid.uuid()[:8])
         os.makedirs(exp_folder)
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
@@ -42,6 +51,9 @@ class ML():
 
 
     def sgd_reg_func(self):
+        """sklearn SGD-regressor: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDRegressor.html
+        regression model to learn continous values
+        """
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_reg, test_size=0.2, random_state=42)
 
         reg = make_pipeline(StandardScaler(), SGDRegressor(max_iter=1000, tol=1e-3))
@@ -50,6 +62,9 @@ class ML():
         print(reg.score(X_test, y_test))
 
     def mlp_regressor(self):
+        """Multilayer Perceptron implementation of Tensorflow.
+        See tf_models.py for more infos
+        """
         from tf_models import _mlp_regressor
 
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_reg, test_size=0.2, random_state=42)
@@ -57,6 +72,9 @@ class ML():
         _mlp_regressor(X_train, y_train)
 
     def mlp_classifier(self):
+        """Multilayer Perceptron implementation of Tensorflow.
+        See tf_models.py for more infos
+        """
         from tf_models import _mlp_classifier
 
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
@@ -64,6 +82,11 @@ class ML():
         _mlp_classifier(X_train, y_train)
 
     def check_models(self):
+        """ generate different multi layer perceptron models using the function "get_models" from "tf_models.py"
+        to find best architectures.
+        See tf_models.py for more infos
+
+        """
         from tf_models import get_models, _mlp_classifier
         models = get_models(4, 32, 192, 32, 512)
         print("Checking {0} Models for Classification...".format(len(models)))
@@ -73,6 +96,8 @@ class ML():
             _mlp_classifier(X_train, y_train, epochs=10, model=model)
 
     def svm_func(self):
+        """Support Vector Machine for classification tasks (not enough memory with n_jobs=20 and n_estimators=20 using "medum dataset")
+        """
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
         # clf = make_pipeline(StandardScaler(), svm.SVC(gamma='auto'))
@@ -83,6 +108,9 @@ class ML():
         print("SVM Score: ", scores)
 
     def tsne_func(self):
+        """Dimensionality reduction using tsne from sklearn: https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html
+        outputs a PDF plotting the samples on a reduced feature space
+        """
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
         palette = sns.color_palette("bright", len(set(y_train)))
@@ -93,6 +121,10 @@ class ML():
         plt.savefig("tsne.pdf")
 
     def naive_bayes_estimator(self):
+        """Bayes Estimator from: https://scikit-learn.org/stable/modules/naive_bayes.html
+        for efficient classification (using a lot of samples)
+        Less computionally expensive than SVM above.
+        """
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
         gnb = GaussianNB()
@@ -107,46 +139,19 @@ class ML():
 
 
 
-def get_combined_data(args):
-
-    combined_features = pd.DataFrame()
-    combined_targets = pd.DataFrame()
-
-    with pd.ExcelFile(args.xlsx_path) as xlsx:
-        # xlsx = pd.ExcelFile(args.csv)
-        worksheet = pd.read_excel(xlsx, "codiert")
-
-        for c, row in worksheet.iterrows():
-            simclr_paths = row["simclr_results"]
-            if pd.notna(simclr_paths):
-                simclr_paths = simclr_paths.replace("[", "").replace("'", "").replace("]", "")
-
-                for path in simclr_paths.split(","):
-                    name = path.split("/results")[0].split("/")[-1]
-                    # print(name)
-                    filepath = os.path.join(path.replace(" ", ""), name + "_features_frame.h5")
-                    if os.path.isfile(filepath):
-                        print(filepath)
-                        with h5py.File(filepath, "r") as f:
-                            features_ = pd.DataFrame(np.array(f["features"]))
-
-                            targets_ = [row["HRD-Status"]]*len(features_)
-                            # targets_ = [row["GIS-Wert"]]*len(features_)
-
-                            use_samples = int(len(features_)/1)
-                            features = features_[:use_samples]
-                            targets = pd.DataFrame(targets_[:use_samples])
-
-                            combined_features = pd.concat([combined_features, features], ignore_index=True)
-                            combined_targets = pd.concat([combined_targets, targets], ignore_index=True)
-
-
-    combined_targets = combined_targets.values.flatten()
-
-    return combined_features, combined_targets
-
-
 def save_h5_files(args, combined_features, combined_targets_class, combined_targets_reg):
+    """save the combined features and targets to three distinct HDF5 files
+    Parameters
+    ----------
+    args : dictionary
+        command line arguments
+    combined_features : data frame
+        data frame storing features
+    combined_targets_class : data frame
+        data frame storing classification targets
+    combined_targets_reg : data frame
+        data frame storing regression targets
+    """
 
     dataset_path = "data/dataset_{0}".format(len(os.listdir("data")))
     os.makedirs(dataset_path)
@@ -158,27 +163,45 @@ def save_h5_files(args, combined_features, combined_targets_class, combined_targ
 
 
 def get_combined_data_subset(args):
+    """ reads the single feature frame HDF5 files, combines them into one HDF5 file and stores it.
+
+    Parameters
+    ----------
+    args : dict
+        command line arguments dictionary
+
+    Returns
+    -------
+
+    combined_features, combined_targets_class, combined_targets_reg: data frames
+        data frames that hold the features and targets respectively
+    """
 
     combined_features = pd.DataFrame()
     combined_targets_class = pd.DataFrame()
     combined_targets_reg = pd.DataFrame()
 
+    # Open excel file with file paths
     with pd.ExcelFile(args.xlsx_path) as xlsx:
         # xlsx = pd.ExcelFile(args.csv)
         worksheet = pd.read_excel(xlsx, "Sheet1")
-        # print(worksheet)
+        
+        # iterate over each row (file path)
         for c, row in worksheet.iterrows():
             filename = row["filename"]
             if pd.notna(filename):
                 print("File: ", filename)
                 data_path = os.path.join(args.parent_path, filename.split(".svs")[0])
                 if os.path.isdir(data_path):
+                    # find the correct features files for each WSI file path:
                     for r, d, f in os.walk(data_path):
                         for file_ in f:
                             if file_.endswith("features_frame.h5"):
                                 filepath = os.path.join(r, file_)
                                 print("Found:")
                                 print(filepath)
+
+                                # Open the HDF5 features files and store features/targets to pandas data sets
                                 with h5py.File(filepath, "r") as f:
                                     features_ = pd.DataFrame(np.array(f["features"]))
 
@@ -204,6 +227,22 @@ def get_combined_data_subset(args):
 
 
 def check_datasets(args):
+    """check if the data set (single files) have already been stored as HDF5 file
+
+    TODO check independent of order!!!! (so far only the file lists are compared)
+
+    Parameters
+    ----------
+    args : dict
+        command line arguments dictionary
+
+    Returns
+    -------
+    dataset_found: bool
+        True/False according to data set found: Yes/No
+    dataset_path: string
+        path to the HDF5 file
+    """
 
     dataset_found = False
     dataset_path = ""
@@ -231,7 +270,11 @@ if __name__ == "__main__":
     2) The "examples_hrd.xlsx" file contains paths to CLAM and SIMCLR results folders
     3) Call this main.py script with the new (changed) "examples_hrd.xlsx" file ("python main.py -p examples_hrd.xlsx")
     4) This script constructs one dataframe from the input feature frames
+        4a) If the data is new (not saved before) the resulting dataframe is save as HDF5 file
+        4b) If the data has been used before, the corresponding HDF5 file is loaded
     5) Finally the different functions for ML and data analysis can be used
+
+    TODO command line arguments could/should be replaced by config file
     """
 
     
@@ -260,10 +303,6 @@ if __name__ == "__main__":
 
         else:
             combined_features, combined_targets_class, combined_targets_reg = get_combined_data_subset(args)
-
-    # get all features and corresponding targets
-    # if args.save_h5 or not dataset_found:
-    #     combined_features, combined_targets_class, combined_targets_reg = get_combined_data_subset(args)
 
     if os.path.isdir(args.data_path):
         data_path = args.data_path
