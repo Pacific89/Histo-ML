@@ -86,6 +86,7 @@ def get_tensorboard_callback(log_dir="./logs"):
 
 def _mlp_regressor(X, y, epochs=500, batch_size=200, validation_split=0.2, model=None):
     """Multilay Perceptron for Regression. [Should be same function as classification but with a different activation function in the last layer]
+    Beginners Guide: https://www.tensorflow.org/tutorials/quickstart/beginner
     Parameters
     ----------
     X : array
@@ -120,6 +121,8 @@ def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2, mode
     """Multi Layer Perceptron classifier with some adjustable hyperparemeters.
     Either the model is provided or some default model is built.
 
+    Beginners Guide: https://www.tensorflow.org/tutorials/quickstart/beginner
+
     Parameters
     ----------
     X : array
@@ -146,9 +149,11 @@ def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2, mode
         Dense(32, activation='relu'),
         Dense(2, activation='softmax'), 
         ])
+        model._name = "manual"
 
     ckpt = tf.train.Checkpoint(model)
-    manager = tf.train.CheckpointManager(ckpt, './tf_ckpts', max_to_keep=3)
+    model_name = model._name
+    manager = tf.train.CheckpointManager(ckpt, './tf_ckpts/{0}'.format(model_name), max_to_keep=3)
 
     model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
