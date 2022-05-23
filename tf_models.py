@@ -48,10 +48,9 @@ def get_models(num_layers: int,
         
     return models
 
-def get_tensorboard_callback(hparams, log_dir="./logs"):
+def get_tensorboard_callback(log_dir="./logs"):
 
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
-    keras_callback = hp.KerasCallback(log_dir, hparams) # Track Hyper parameters
 
     return tensorboard_callback
 
