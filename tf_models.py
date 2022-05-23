@@ -48,9 +48,10 @@ def get_models(num_layers: int,
         
     return models
 
-def get_tensorboard_callback(log_dir="./logs"):
+def get_tensorboard_callback(hparams, log_dir="./logs"):
 
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir)
+    keras_callback = hp.KerasCallback(log_dir, hparams) # Track Hyper parameters
 
     return tensorboard_callback
 
@@ -82,12 +83,18 @@ def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2, mode
         Dense(2, activation='softmax'), 
         ])
 
+    ckpt = tf.train.Checkpoint(model)
+    manager = tf.train.CheckpointManager(ckpt, './tf_ckpts', max_to_keep=3)
+
     model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
     model.summary()
     model.fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split, callbacks=[get_tensorboard_callback()])
+
+    save_path = manager.save()
+    print("Saved to: ", save_path)
 
 
 
