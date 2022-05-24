@@ -117,7 +117,7 @@ def _mlp_regressor(X, y, epochs=500, batch_size=200, validation_split=0.2, model
     model.fit(X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split,  callbacks=[get_tensorboard_callback()])
 
 
-def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2, model=None):
+def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2, model=None, save_path=''):
     """Multi Layer Perceptron classifier with some adjustable hyperparemeters.
     Either the model is provided or some default model is built.
 
@@ -150,10 +150,13 @@ def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2, mode
         Dense(2, activation='softmax'), 
         ])
         model._name = "manual"
+    
+    if len(save_path) == 0:
+        save_path = './tf_ckpts/{0}'.format(model_name)
 
     ckpt = tf.train.Checkpoint(model)
     model_name = model._name
-    manager = tf.train.CheckpointManager(ckpt, './tf_ckpts/{0}'.format(model_name), max_to_keep=3)
+    manager = tf.train.CheckpointManager(ckpt, save_path, max_to_keep=3)
 
     model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
