@@ -93,7 +93,13 @@ class ML():
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
         for model in models:
-            _mlp_classifier(X_train, y_train, epochs=10, model=model)
+            save_path = './tf_ckpts/{0}'.format(model._name)
+
+            if os.path.isdir(save_path):
+                print("Checkpoint found for: ", model._name)
+                print("Continueing...")
+                continue
+            _mlp_classifier(X_train, y_train, epochs=10, model=model, save_path=save_path)
 
     def svm_func(self):
         """Support Vector Machine for classification tasks (not enough memory with n_jobs=20 and n_estimators=20 using "medum dataset")
