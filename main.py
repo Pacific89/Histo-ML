@@ -88,7 +88,7 @@ class ML():
 
         """
         from tf_models import get_models, _mlp_classifier
-        models = get_models(4, 32, 192, 32, 512)
+        models = get_models(3, 32, 192, 32, 512)
         print("Checking {0} Models for Classification...".format(len(models)))
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
