@@ -93,9 +93,9 @@ class ML():
         X_train, X_test, y_train, y_test = train_test_split(self.combined_features, self.combined_targets_class, test_size=0.2, random_state=42)
 
         for model in models:
-            save_path = './tf_ckpts/{0}'.format(model._name)
+            save_path = './tf_models/{0}.h5'.format(model._name)
 
-            if os.path.isdir(save_path):
+            if os.path.isfile(save_path):
                 print("Checkpoint found for: ", model._name)
                 print("Continueing...")
                 continue
