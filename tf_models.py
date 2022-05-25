@@ -139,6 +139,9 @@ def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2, mode
         tensorflow model to test a list of different architectures, by default None
     """
 
+    # clear session du reduce memory usage (due to compile tf models)
+    tf.keras.backend.clear_session()
+
     if model == None:
         model = Sequential([
         Flatten(input_shape=(512,)),
