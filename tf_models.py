@@ -159,13 +159,7 @@ def _mlp_classifier(X, y, epochs=500, batch_size=200, validation_split=0.2, mode
     # if len(save_path) == 0:
     #     save_path = './tf_ckpts/{0}'.format(model_name)
 
-    arc = [l.units for l in model.layers] # get unit info of each layer as list
-    HP_NUM_UNITS = hp.HParam('num_units', hp.Discrete(arc))
-    hparams = {
-                HP_NUM_UNITS: num_units
-    }
-
-    hp.hparams(hparams)
+    # arc = [l.units for l in model.layers] # get unit info of each layer as list
 
     model.compile(optimizer='adam',
               loss='sparse_categorical_crossentropy',
@@ -188,9 +182,18 @@ if __name__ == "__main__":
     model_list = get_models(3, 32, 64, 32, 512)
     # print([m.summary() for m in model_list])
 
-    for model in model_list:
-        print([l.units for l in model.layers])
-    HP_NUM_UNITS = hp.HParam('num_units', hp.Discrete([300,200,512]))
+    # for model in model_list:
+    #     print([l.units for l in model.layers])
+    # HP_NUM_UNITS = hp.HParam('num_units', hp.Discrete([300,200,512]))
+
+    arc = [l.units for l in model_list[0].layers] # get unit info of each layer as list
+    # HP_NUM_UNITS = hp.HParam('num_units', hp.Discrete(arc))
+    # print(HP_NUM_UNITS.domain.values)
+    # hparams = {
+    #             HP_NUM_UNITS: num_units
+    # }
+
+    # hp.hparams(hparams)
 
     # new_model = tf.keras.models.load_model('/media/user/easystore/dense32_dense32_dense32_dense32.h5')
     # print(new_model)
