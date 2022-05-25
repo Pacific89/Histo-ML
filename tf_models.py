@@ -13,8 +13,8 @@ def get_models(num_layers: int,
                node_step_size: int,
                input_shape: tuple,
                hidden_layer_activation: str = 'relu',
-               num_nodes_at_output: int = 2,
-               classification = True) -> list:
+               num_nodes_at_output: int = 2
+               ) -> list:
     """ generate different neural network architectures.
     code from: https://towardsdatascience.com/how-to-find-optimal-neural-network-architecture-with-tensorflow-the-easy-way-50575a03d060
 
@@ -34,8 +34,6 @@ def get_models(num_layers: int,
         activation function for hidden layers, by default 'relu'
     num_nodes_at_output : int, optional
         number of output units, by default 2
-    classification : bool, optional
-        if classification is used, the outputfunction is different: either "softmax" or "sigmoid", by default True
 
     Returns
     -------
@@ -43,18 +41,17 @@ def get_models(num_layers: int,
         list of keras models
     """
     
-    if classification:
-        output_layer_activation: str = 'softmax'
-    else:
-        output_layer_activation: str = 'sigmoid'
+    output_layer_activation: str = 'softmax'
 
     node_options = list(range(min_nodes_per_layer, max_nodes_per_layer + 1, node_step_size))
     layer_possibilities = [node_options] * num_layers
     layer_node_permutations = list(itertools.product(*layer_possibilities))
+
+    linear_list = [[n for n in range(16,512,m)[::-1]] for m in range(64,128,16)]
     
     models = []
     arc = []
-    for permutation in layer_node_permutations:
+    for permutation in linear_list:
         model = tf.keras.Sequential()
         model.add(tf.keras.layers.InputLayer(input_shape=input_shape))
         model_name = ''
@@ -68,6 +65,7 @@ def get_models(num_layers: int,
         models.append(model)
         
     return models
+
 
 def get_tensorboard_callback(log_dir):
     """creates callback for the training loops to store accuracy metrics for tensorboard
