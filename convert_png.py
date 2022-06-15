@@ -7,6 +7,13 @@ import gc
 
 
 def convert(file_path):
+    """save image at "file_path" as jpg instead of png to save disk space
+
+    Parameters
+    ----------
+    file_path : string
+        path to image file (png is asummed)
+    """
     img = cv2.imread(file_path)
 
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -34,6 +41,8 @@ def convert(file_path):
 
 
 if __name__ == "__main__":
+    """ iterate over all files in "path" and call "convert" function for every found png
+    """
     path = "/media/user/easystore/clam_heat_superpatches"
 
     # print(os.listdir(path))

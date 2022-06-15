@@ -3,6 +3,12 @@ import shutil
 
 
 if __name__ == "__main__":
+    """ files stored in "input_folder" are restructured such that every svs is stored inside a folder called "name/data/name.svs"
+    E.G.:
+    files stored in the folder "dataset":  "dataset/wsi-x.svs ; dataset/wsi-y.svs"
+    are restructured in the following way: "dataset/wsi-x/data/wsi-x.svs ; dataset/wsi-y/data/wsi-y.svs etc" from
+       
+    """
 
     ext = ".svs"
     input_folder = "/media/user/easystore/HRD-Subset-V"

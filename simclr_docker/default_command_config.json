@@ -1,0 +1,8 @@
+{   "name" : "simclr",
+    "input_path": "/usr/local/mount",
+    "output_path": "/usr/local/mount/results",
+    "wrapper_path": "/usr/local/wrapper",
+    "src_path": "/usr/local/src",
+    "model_path": "/usr/local/models/tenpercent_resnet18.ckpt",
+    "config_path": ""
+  }

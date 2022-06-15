@@ -9,16 +9,45 @@ import pickle
 import argparse
 
 class FeatureAnalysis():
+    """ class for training and analysing kmeans algorithms
+    """
 
     def __init__(self, path, keep, server=False):
+        """ init method to set some parameters
+
+        Parameters
+        ----------
+        path : string
+            parent path for kmeans models to be store or loaded from
+        keep : int
+            number of files to keep for kmeans training
+        server : bool, optional
+            info if started on server (for training), by default False
+            if run on server, loads the list of feature frames and stores them into one large dataframe
+        """
 
         self.parent_path = path
+        self.random_state = 0
 
         if server:
             self.frame_list = self.get_paths(keep_files=keep)
             self.all_feat_frame = self.create_dataframe()
 
     def run(self, k):
+        """ function used to train multiple kmeans models consecutively
+            can be called using a loop, iterating over several "k"s and one initialized
+            FeatureAnalysis Object
+
+            sets amount of clusters (k)
+            trains kmeans model (calc_kmeans)
+            plots kmeans results (plot_kmeans)
+            finally saves the trained model (save_model)
+
+        Parameters
+        ----------
+        k : int
+            number of clusters for kmeans training
+        """
 
         self.k = k
         self.kmeans = self.calc_kmeans()
@@ -26,6 +55,13 @@ class FeatureAnalysis():
         self.save_model(self.kmeans)
 
     def save_model(self, model):
+        """ saves trained kmeans model as .pkl file
+
+        Parameters
+        ----------
+        model : Object
+            sklearn kmeans object
+        """
 
         model_name = "kmeans_{0}.pkl".format(self.k)
 
@@ -34,6 +70,20 @@ class FeatureAnalysis():
 
 
     def get_paths(self, keep_files=0):
+        """ generates a list of paths to read the features_frame.csv from
+            TODO the file type has changed to HDF5 format.
+            This needs to be adapted (no more csv viles available!)
+
+        Parameters
+        ----------
+        keep_files : int, optional
+            files to keep for kmeans training. If 0, all files are used, by default 0
+
+        Returns
+        -------
+        list
+            list of paths to existing "feature_frame.csv" files
+        """
 
         frame_list = []
         for folder in os.listdir(self.parent_path):
@@ -50,6 +100,13 @@ class FeatureAnalysis():
 
 
     def create_dataframe(self):
+        """ creates empty dataframe and appends all feature frames
+
+        Returns
+        -------
+        Pandas DataFrame
+            dataframe with all features for all used files (from features_frame.csv files)
+        """
 
         all_feat_frame = pd.DataFrame([])
         print("Getting features...")
@@ -62,6 +119,10 @@ class FeatureAnalysis():
         return all_feat_frame
 
     def check_kmeans(self):
+        """ loads multiple kmeans models stored in self.parent_path and plots cumulative distances (y-axis)
+            for each kmeans models with different amounts of clusters (x-axis)
+            kmeans models are expected to be stored as .pkl files
+        """
         print("Checking kmeans models:")
 
         kmeans_paths = [os.path.join(self.parent_path, f) for f in os.listdir(self.parent_path) if f.endswith('.pkl')]
@@ -91,14 +152,25 @@ class FeatureAnalysis():
         plt.show()
 
     def calc_kmeans(self):
+        """ prepares data from the feature frame and computes a kmeans model with the set number of clusters
+
+        Returns
+        -------
+        Object
+            trained kmeans sklearn object 
+        """
         self.data = self.all_feat_frame.iloc[:, 1:].values
         self.paths = [d[0] for d in self.all_feat_frame.iloc[:, :1].values]
 
-        kmeans = KMeans(n_clusters=self.k, random_state=0).fit(self.data)
+        kmeans = KMeans(n_clusters=self.k, random_state=self.random_state).fit(self.data)
 
         return kmeans
 
     def plot_kmeans(self):
+        """ plots the image of the cluster center and the 8 Images
+            with features closest to the cluster center.
+            Finally saves the figure as png
+        """
 
         centroids = self.kmeans.cluster_centers_
         # print(centroids)
@@ -131,19 +203,15 @@ class FeatureAnalysis():
 
         
 
-    def check_on_server(self):
-
-        csv_path = "/home/simon/philipp/docker/features_frame.csv"
-        data_ = pd.read_csv(csv_path)
-        data = data_.iloc[:, 1:].values
-        paths = [d[0] for d in data_.iloc[:, :1].values]
-        # print(paths)
-        # print(data)
-        # k = check_kmeans(data, paths)
-
-        kmeans_plot(data, paths)
-
 if __name__ == "__main__":
+        """ main function provides some command line arguments and starts the kmeans functions accordingly.
+            k_clusters: number of clusters for kmeans algorithm
+            keep: number of files to use for kmeans training
+            load_kmeans: load existing kmeans object
+            server: True if started on server (used for training, assuming that server has much more RAM)
+
+            creates an object from class "FeatureAnalysis" which provides the function for kmeans training and analysis
+        """
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-k', '--k_clusters', required=False, nargs='+', default=[200])
@@ -169,8 +237,6 @@ if __name__ == "__main__":
             fa = FeatureAnalysis(path, keep=keep)
             fa.check_kmeans()
 
-
-    # check_on_server()
 
     # patch_path = "/media/user/easystore/patches/"
     # patch_path_ = "/media/user/easystore/DigitalSlide_A1M_9S_1_20190127165819218/"

@@ -21,8 +21,37 @@ from torchsummary import summary
 import sys
 
 class ContrastiveExtractor():
+    """ class for using the SimCLR pretrained resnet from:
+        https://github.com/ozanciga/self-supervised-histopathology
+
+        Sets Input, Output and modelpath (from command line arguments)
+        loads and prepares tensorflow model so the function "extract_fetaures_from_h5file"
+        can be called.
+    """
 
     def __init__(self, args, batch_size=1000, return_preactivation = True):
+        """
+        IMPORTAND - Required file structure: /path/to/WSI-x/data/wsi-x.svs
+        Functions of the ContrastiveExtractor object can be used inside the SimCLR docker container:
+        
+        - BUILD docker image from docker file
+        - RUN feature extraction: docker run --rm -v /path/to/WSI-x:/usr/local/mount simclr-docker
+
+        OR: python3 /usr/local/src/contrastive.py -pp path/to/WSI-x -o output/path -m path/to/model
+
+        Sets input,output and model paths
+        opens WSI object and prepares a dataloader and the tensorflow model
+
+
+        Parameters
+        ----------
+        args : dictionary
+            command line arguments
+        batch_size : int, optional
+            batch size for feature extraction, by default 1000
+        return_preactivation : bool, optional
+            return values of the last layer if True else return class prediction (integer between 0 and num_classes), by default True
+        """
 
 
         self.batch_size = batch_size
@@ -41,7 +70,7 @@ class ContrastiveExtractor():
 
         self.model_path = args.modelpath
         self.return_preactivation = return_preactivation  # return features from the model, if false return classification logits
-        # self.num_classes = 10  # only used if self.return_preactivation = False
+        self.num_classes = 10  # arbitrary number!!! only used if self.return_preactivation = False
 
         self.model = self.load_model()
         self.model = self.model.to(self.device)
@@ -49,11 +78,27 @@ class ContrastiveExtractor():
         print("Initialized")
 
     def collate_features(self, batch):
+        """function used by the data loader
+        
+        Parameters
+        ----------
+        batch : batch object
+            created by data loader
+
+        Returns
+        -------
+        List
+            image and coordinates for the Dataloader
+        """
         img = torch.cat([torch.from_numpy(item[0]) for item in batch], dim = 0)
         coords = np.vstack([item[1] for item in batch])
         return [img, coords]
 
     def get_wsi_path(self):
+        """ get paths for the WSI (clam coordinates stored in "blockmap.h5" or patch file "wsi-x.h5" and .svs file)
+        if no patch file or blockmap is found, the script exits
+        path to patch file is store in "self.patch_h5"
+        """
 
         parent_folder = Path(self.base_path)
         self.wsi_name = os.listdir(os.path.join(parent_folder, "data"))[0].replace(".svs", "")
@@ -80,6 +125,13 @@ class ContrastiveExtractor():
         
 
     def load_model(self):
+        """ load tensorflow resnet18 model and load weights from the provided model path
+            SimCLR model from: https://github.com/ozanciga/self-supervised-histopathology/releases/tag/tenpercent
+
+        Returns
+        -------
+        tensor flow resnet18 model with loaded SimCLR weights
+        """
         model = torchvision.models.__dict__['resnet18'](pretrained=False)
 
         state = torch.load(self.model_path, map_location='cuda:0')
@@ -99,6 +151,13 @@ class ContrastiveExtractor():
 
 
     def load_model_weights(self, model, weights):
+        """ loads weights
+
+        Returns
+        -------
+        [type]
+            [description]
+        """
 
         model_dict = model.state_dict()
         weights = {k: v for k, v in weights.items() if k in model_dict}
@@ -109,78 +168,21 @@ class ContrastiveExtractor():
 
         return model
 
-    def load_imgs(self, img_paths):
-        try:
-            return np.array([np.reshape(np.array(Image.open(img).convert('RGB').resize((224,224))), (3,224,224)) for img in img_paths])
-        except:
-            return np.array([])
 
-    def extract_features(self, imgs):
-        # image = np.array(Image.open(os.path.join(path, img_paths[0])))
-
-        # Define a transform to convert the image to tensor
-        transform = transforms.ToTensor() 
-        # Convert the image to PyTorch tensor 
-        # tensor = transform(images)
-
-        # print("Device:", device)
-        tensor = torch.from_numpy(imgs).float().to(self.device)
-
-        out = self.model(tensor)
-        frame = pd.DataFrame(out.cpu().detach().numpy())
-
-        return frame
-
-
-
-    def get_wsi_paths(self):
-
-        [print(x) for x in os.listdir(self.base_path)]
-        wsi_paths = [os.path.join(self.base_path, x) for x in os.listdir(self.base_path)]
-        print(wsi_paths)
-        print("Loaded {0} WSI-Folder(s)".format(len(wsi_paths)))
-
-        return wsi_paths
-
-
-
-    def extract_features_from_patchfiles(self, wsi_path):
-
-        dataframe = pd.DataFrame()
-
-        data_path = os.path.join(wsi_path, "data")
-
-        img_paths = [x for x in os.listdir(data_path)]
-        self.img_paths = [os.path.join(data_path, x) for x in img_paths]
-        
-        for subset in tqdm(more_itertools.chunked(self.img_paths, self.batch_size)):
-            
-            imgs = self.load_imgs(subset)
-            if len(imgs) > 0:
-                frame = self.extract_features(imgs)
-            else:
-                frame = pd.DataFrame([])
-
-            dataframe = pd.concat([dataframe, frame])
-
-        print("OUT:")
-        print(dataframe)
-
-        dataframe.to_csv(os.path.join(wsi_path, "features_frame.csv"))
 
     def save_hdf5(self, output_path, asset_dict, attr_dict= None, mode='a'):
-        """CLAMs hdf5 save function:
+        """CLAMs hdf5 save function. stores values in hdf5 files using "update" mode by default
 
         Parameters
         ----------
-        output_path : [type]
-            [description]
-        asset_dict : [type]
-            [description]
-        attr_dict : [type], optional
-            [description], by default None
+        output_path : string
+            path for output results
+        asset_dict : dictionary
+            asset_dict = {'features': features, 'coords': coords}
+        attr_dict : dictionary, optional
+            attributes can be specified, by default None
         mode : str, optional
-            [description], by default 'a'
+            mode for writing the hdf5 file, by default 'a'
         """
 
         file = h5py.File(output_path, mode)
@@ -206,6 +208,12 @@ class ContrastiveExtractor():
 
 
     def extract_features_from_h5file(self):
+        """ use patch coordinates for the fetaure extraction
+        and store the features in hdf5 files (calling save_hdf5())
+
+        iterates over the batches generated by the data loader
+        and applies the loaded model to each batch
+        """
 
         with h5py.File(self.patch_h5, "r") as f:
             all_coords = np.array(f["coords"])
@@ -237,46 +245,22 @@ class ContrastiveExtractor():
                 self.save_hdf5(output_path, asset_dict, attr_dict= None, mode=mode)
                 mode = 'a'
 
-        # for coord_subset in tqdm(chunked_list):
-
-        #     patch_array = self.create_patch_dict(coord_subset)
-        #     frame = self.extract_features(patch_array)
-
-        csv_name = "{0}_features_frame.csv".format(self.wsi_name)
-
-        # all_feat_frame.to_csv(os.path.join(self.outfolder, csv_name))
-        # all_feat_frame.to_hdf(os.path.join(self.outfolder, h5_name), "feat_frame")
-
-    def get_patch(self, coords, wsi_path, patch_size=256):
-
-        patch = self.wsi.read_region(tuple(coords), level=0, size=(patch_size, patch_size)).convert('RGB')
-        patch = np.asarray(patch.resize((224,224))).transpose()
-
-        # plt.figure()
-        # plt.imshow(patch)
-
-        # plt.figure()
-        # plt.imshow(patch_)
-
-        # plt.show()
-
-        return patch
-
-    def create_patch_dict(self, coords):
-        patch_dict = {}
-        count = 0
-        # images = np.array([np.reshape(np.array(Image.open(img).convert('RGB').resize((224,224))), (3,224,224)) for img in img_paths])
-
-        patch_array = np.zeros((self.batch_size, 3, 224, 224))
-        for coord in coords:
-            patch = self.get_patch(coord, self.wsi_path)
-            patch_array[count] = patch
-            count += 1
-
-        return patch_array
-
 
 if __name__ == "__main__":
+        """
+        IMPORTAND - Required file structure: /path/to/WSI-x/data/wsi-x.svs
+
+        Functions of the ContrastiveExtractor object can be used inside the SimCLR docker container:
+        
+        - BUILD docker image from docker file
+        - RUN feature extraction: docker run --rm -v /path/to/WSI-x:/usr/local/mount simclr-docker
+
+        OR: python3 /usr/local/src/contrastive.py -pp path/to/WSI-x -o output/path -m path/to/model
+
+        main function providing some command line arguments to specify input, output and modelpaths
+        creates an Object of class "contrastiveExtractor" and uses its function "extract_features_from_h5file"
+        images patches are read using patch coordinates from clam (from hdf5 files)
+        """
     # images = torch.rand((10, 3, 224, 224), device='cuda')
     # self.model_path_ = '/home/user/Documents/Master/contrastive_learning/tenpercent_resnet18.ckpt'
 
@@ -288,23 +272,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    base_path = args.parentpath
-
-    # if len(base_path) > 0:
-    #     ce = ContrastiveExtractor(args)
-    #     for wsi_path in ce.wsi_paths:
-    #         print("File: ", wsi_path)
-    #         feat_file = os.path.join(wsi_path, "features_frame.csv")
-            
-    #         if os.path.isfile(feat_file):
-    #             print("Features found")
-    #             continue
-    #         else:
-    #             print("Calculating features...")
-    #             ce.extract_features_from_patchfiles(wsi_path)
-
-            
-    # else:
     ce = ContrastiveExtractor(args)
     # print("Model:", summary(ce.model, (3,224,224)))
     ce.extract_features_from_h5file()

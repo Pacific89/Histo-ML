@@ -14,6 +14,9 @@ from tqdm import tqdm
 
 
 class Patch_pdf():
+    """ exports patch files from corresponding WSI
+        TODO debug "process_files" function for creating PDF files from patches
+    """
 
     def __init__(self, parent_path, json_file=None):
 
@@ -35,6 +38,8 @@ class Patch_pdf():
             self.get_clam_paths()
 
     def set_hover_data(self):
+        """sets labels and colors for legend in PDF file
+        """
 
         with open(self.json_file) as info_json:
             info_data = json.load(info_json)
@@ -45,6 +50,13 @@ class Patch_pdf():
 
 
     def get_sorted_files(self):
+        """ gets list of sorted wsi file names
+
+        Returns
+        -------
+        [type]
+            [description]
+        """
 
         for root, dirs, files in os.walk(self.parent_path):
             # print(root)
@@ -66,6 +78,21 @@ class Patch_pdf():
         return sorted_files
 
     def export_patches(self, coords, attentions, name, wsi_path, patch_size):
+        """ saves each patch as png file to the location: self.save_path/patches/{wsi_name}/data
+
+        Parameters
+        ----------
+        coords : list
+            list of coordinates for the corresponding WSI
+        attentions : list
+            list of attention scores
+        name : string
+            WSI name
+        wsi_path : string
+            path to the corresponding WSI
+        patch_size : int
+            patch size in pixel
+        """
 
         count = 0
         patch_folder = os.path.join(self.save_path, "patches")
@@ -103,14 +130,29 @@ class Patch_pdf():
 
         del wsi
 
-    def extract_patches_png(self, min_val=-15, max_patches=0, patch_size=256, shuffle=False):
+    def extract_patches_png(self, min_val=-15, max_patches=0, patch_size=256, shuffle=False, max_wsi=20):
+        """extract single patch files from WSIs and use CLAM attention score as a threshold
+
+        Parameters
+        ----------
+        min_val : int, optional
+            minimum attention score (calulated by CLAM), by default -15
+        max_patches : int, optional
+            max number of patches to be extracted. If 0 all patches above threshold are extracted, by default 0
+        patch_size : int, optional
+            patch size in pixel, by default 256
+        shuffle : bool, optional
+            shuffle indices of patch extraction True/False, by default False
+        max_wsi : int, optional
+            breaks the patch extraction if the maximum number of WSI is reached, by default 20
+        """
 
 
         total_patches = 0
         wsi_count = 0
         for wsi in tqdm(self.wsi_dict):
 
-            if wsi_count > 20:
+            if wsi_count > max_wsi:
                 break
             # print(wsi)
             wsi_path = self.wsi_dict[wsi][0]
@@ -152,7 +194,31 @@ class Patch_pdf():
 
         print("Total {0} patches extracted from {1} WSI files".format(total_patches, len(self.wsi_dict)))
 
-    def get_attentions_and_coords(self, blockmap_path, wsi_path, name, min_val, patch_size=256, num_patches=25):
+    def get_attentions_and_coords(self, blockmap_path, wsi_path, name, min_val, patch_size=256):
+        """ reads coordinates and attention scores from CLAM results
+
+        Parameters
+        ----------
+        blockmap_path : string
+            path to blockmap (HDF5 file holding attention scores and coordinates)
+        wsi_path : string
+            path to WSI
+        name : string
+            name of WSI
+        min_val : int
+            minimum attention score
+        patch_size : int, optional
+            patch size in pixel, by default 256
+
+        Returns
+        -------
+        coords_highest : List
+            list of coordinates above given threshold
+        highest_attentions : List
+            list of corresponding attentions above given threshold
+        max_coords : int
+            number of total patches in HDF5 file
+        """
     
     
         with h5py.File(blockmap_path, "r") as f:
@@ -179,6 +245,8 @@ class Patch_pdf():
 
 
     def get_clam_paths(self):
+        """ tries to find correct CLAM results paths and sets self.wsi_dict which holds info on WSI paths and clam paths
+        """
         wsi_paths = []
         blockmap_paths = []
         wsi_names = []
@@ -237,6 +305,11 @@ class Patch_pdf():
         self.wsi_dict = wsi_dict
 
     def process_files(self):
+        """ TODO after creating the class, the logic of this function was destroyed:
+            !!!! patch_files, data_folder and overlay_folder not defined, should be set in init !!!!
+
+            function should call create_pdf for each WSI
+        """
 
         # patches per file saved if = 0 all patches available are used
         num_patches_per_file = 16
@@ -252,6 +325,23 @@ class Patch_pdf():
 
 
     def create_pdf(self, patch_files, data_folder, overlay_folder, wsi_name, num_patches=0):
+        """ generates a PDF file that contains a given number of patches extracted from one WSI
+            and patches that have been classified and segmented by HoVerNet.
+            TODO check "process_files" function above!!!
+
+        Parameters
+        ----------
+        patch_files : list
+            list of patch file paths
+        data_folder : string
+            path to patch directory
+        overlay_folder : string
+            path to directory of HoVerNet overlays
+        wsi_name : string
+            name of WSI
+        num_patches : int, optional
+            number of patches to be written into the PDF. If 0, all patches will be used, by default 0
+        """
 
         pdf_name = '{0}.pdf'.format(wsi_name)
         pp = PdfPages(pdf_name)
@@ -357,7 +447,7 @@ if __name__ == "__main__":
     parent_path = "/home/simon/philipp/HRD-Subset-II"
     # parent_path = "/media/user/easystore/patches_0_thresh_26wsi"
 
-    json_file = "/home/user/Documents/Master/hover_net/type_info.json"
+    # json_file = "/home/user/Documents/Master/hover_net/type_info.json"
     
     patch_to_pdf = Patch_pdf(parent_path)
     patch_to_pdf.extract_patches_png(max_patches=0, min_val=-20)
